@@ -218,8 +218,8 @@ than a moving default branch. Before push, clone the local repository; after
 push, use the default public URL:
 
 ```sh
-just verify-clone "$(git rev-parse HEAD)" url=.
-just verify-clone "$(git rev-parse HEAD)" destination=.tmp/ref/flutter-dev-public
+just verify-clone-local "$(git rev-parse HEAD)"
+just verify-clone "$(git rev-parse HEAD)"
 ```
 
 Each destination must be new; failed or completed proof clones are removed

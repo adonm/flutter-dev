@@ -59,7 +59,7 @@ just check-zuko      # run Zuko's own gate
 just check-vixen     # run Vixen's R7 gate
 just check-libghostty
 just check-maintained # parent, remote, app, and libghostty gates
-just verify-clone <parent-commit> # isolated recursive-clone release proof
+just verify-clone <parent-commit> # isolated public recursive-clone proof
 ```
 
 Each child repository remains authoritative for its complete platform and

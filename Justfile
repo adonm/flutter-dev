@@ -27,8 +27,12 @@ check-remotes:
     python3 scripts/submodules.py check --remote
 
 [group('workspace')]
-verify-clone reference url='https://github.com/adonm/flutter-dev.git' destination='.tmp/ref/flutter-dev-verify':
-    python3 scripts/submodules.py clone "{{ url }}" "{{ reference }}" "{{ destination }}"
+verify-clone reference destination='.tmp/ref/flutter-dev-public':
+    python3 scripts/submodules.py clone "https://github.com/adonm/flutter-dev.git" "{{ reference }}" "{{ destination }}"
+
+[group('workspace')]
+verify-clone-local reference destination='.tmp/ref/flutter-dev-local':
+    python3 scripts/submodules.py clone "." "{{ reference }}" "{{ destination }}"
 
 [group('workspace')]
 pin path:
