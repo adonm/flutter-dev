@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "submodules": [
+    {
+      "path": "apps/zuko",
+      "kind": "app",
+      "origin": "https://github.com/adonm/zuko.git",
+      "upstream": null,
+      "branch": "main",
+      "commit": "5647f4db3ba927a4c4afc8dd14b916bf93f77686",
+      "purpose": "Private remote shell application and clients"
+    },
+    {
+      "path": "apps/vixen",
+      "kind": "app",
+      "origin": "https://github.com/adonm/vixen.git",
+      "upstream": null,
+      "branch": "refactor/flutter-renderer-r7",
+      "commit": "d4287ddd0aaa68cc98506064402a3a85ee88dcb2",
+      "purpose": "Flutter-hosted browser application and renderer"
+    },
+    {
+      "path": "sdk/flutter",
+      "kind": "sdk",
+      "origin": "https://github.com/adonm/flutter.git",
+      "upstream": "https://github.com/flutter/flutter.git",
+      "branch": "issue-94804-gtk4-linux",
+      "commit": "00fee9824a795ee9b5794e0a0e2bc5975e54dba8",
+      "purpose": "Flutter framework and engine GTK4 integration"
+    },
+    {
+      "path": "sdk/flutter-packages",
+      "kind": "sdk",
+      "origin": "https://github.com/adonm/packages.git",
+      "upstream": "https://github.com/flutter/packages.git",
+      "branch": "issue-94804-url-launcher-gtk4",
+      "commit": "0ab767292efb16fadbfec3c7c119380343b4fbd8",
+      "purpose": "Flutter package changes needed by the applications"
+    },
+    {
+      "path": "packages/libghostty",
+      "kind": "package",
+      "origin": "https://github.com/adonm/libghostty.git",
+      "upstream": "https://github.com/elias8/libghostty.git",
+      "branch": "chore/melos-workspace",
+      "commit": "97f78fa67b1beb9a16ec2ce70fa24f937c53ca5e",
+      "purpose": "Ghostty terminal bindings and Flutter terminal widget"
+    },
+    {
+      "path": "plugins/gtk.dart",
+      "kind": "plugin",
+      "origin": "https://github.com/adonm/gtk.dart.git",
+      "upstream": "https://github.com/canonical/gtk.dart.git",
+      "branch": "issue-94804-gtk4-validation",
+      "commit": "8f9a5db741176a25657fbf6fecb2a90df8741e48",
+      "purpose": "Dart GTK bindings with GTK4 runtime support"
+    },
+    {
+      "path": "plugins/screen_retriever",
+      "kind": "plugin",
+      "origin": "https://github.com/adonm/screen_retriever.git",
+      "upstream": "https://github.com/leanflutter/screen_retriever.git",
+      "branch": "issue-94804-gtk4-validation",
+      "commit": "a4d8f718ecbee78207945aa87ded0f97e2509c87",
+      "purpose": "Dual-GTK screen discovery plugin"
+    },
+    {
+      "path": "plugins/window_manager",
+      "kind": "plugin",
+      "origin": "https://github.com/adonm/window_manager.git",
+      "upstream": "https://github.com/leanflutter/window_manager.git",
+      "branch": "issue-94804-gtk4-validation",
+      "commit": "3acfbdd1624202edfe03ccc7d4eae548b6c18459",
+      "purpose": "Dual-GTK desktop window management plugin"
+    },
+    {
+      "path": "plugins/yaru_window.dart",
+      "kind": "plugin",
+      "origin": "https://github.com/adonm/yaru_window.dart.git",
+      "upstream": "https://github.com/ubuntu/yaru_window.dart.git",
+      "branch": "issue-94804-gtk4-validation",
+      "commit": "4f22de320ea0270662506900e1ae070eb7b6cb13",
+      "purpose": "Dual-GTK Yaru window integration"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+[submodule "apps/zuko"]
+	path = apps/zuko
+	url = https://github.com/adonm/zuko.git
+	branch = main
+[submodule "apps/vixen"]
+	path = apps/vixen
+	url = https://github.com/adonm/vixen.git
+	branch = refactor/flutter-renderer-r7
+[submodule "sdk/flutter"]
+	path = sdk/flutter
+	url = https://github.com/adonm/flutter.git
+	branch = issue-94804-gtk4-linux
+[submodule "sdk/flutter-packages"]
+	path = sdk/flutter-packages
+	url = https://github.com/adonm/packages.git
+	branch = issue-94804-url-launcher-gtk4
+[submodule "packages/libghostty"]
+	path = packages/libghostty
+	url = https://github.com/adonm/libghostty.git
+	branch = chore/melos-workspace
+[submodule "plugins/gtk.dart"]
+	path = plugins/gtk.dart
+	url = https://github.com/adonm/gtk.dart.git
+	branch = issue-94804-gtk4-validation
+[submodule "plugins/screen_retriever"]
+	path = plugins/screen_retriever
+	url = https://github.com/adonm/screen_retriever.git
+	branch = issue-94804-gtk4-validation
+[submodule "plugins/window_manager"]
+	path = plugins/window_manager
+	url = https://github.com/adonm/window_manager.git
+	branch = issue-94804-gtk4-validation
+[submodule "plugins/yaru_window.dart"]
+	path = plugins/yaru_window.dart
+	url = https://github.com/adonm/yaru_window.dart.git
+	branch = issue-94804-gtk4-validation

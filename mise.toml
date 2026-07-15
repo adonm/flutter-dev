@@ -1,0 +1,7 @@
+# Parent-repository orchestration only. Each submodule owns its build toolchain.
+[tools]
+just = "1.55.1"
+python = "3.14.3"
+
+[settings]
+experimental = true
