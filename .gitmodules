@@ -5,7 +5,7 @@
 [submodule "apps/vixen"]
 	path = apps/vixen
 	url = https://github.com/adonm/vixen.git
-	branch = refactor/flutter-renderer-r7
+	branch = main
 [submodule "sdk/flutter"]
 	path = sdk/flutter
 	url = https://github.com/adonm/flutter.git

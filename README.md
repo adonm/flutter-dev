@@ -49,6 +49,24 @@ names are maintenance metadata, not floating dependencies.
 records the reviewed origins, canonical upstreams, and exact expected commits.
 The parent gitlinks remain Git's authoritative checkout pins.
 
+## GTK4 validation targets
+
+The parent currently pins the GTK4 Flutter framework and plugin validation
+commits, while the default app gitlinks remain on their release-ready `main`
+branches. App consumption is isolated in draft downstream overlays:
+
+| App | Overlay | Review |
+|---|---|---|
+| Zuko | [`vendor/zuko/gtk4@f91b18e`](https://github.com/adonm/zuko/commit/f91b18e937f688b4cdb32f55e48e167acf009cb7) | [adonm/zuko#2](https://github.com/adonm/zuko/pull/2) |
+| Vixen | [`vendor/vixen/gtk4-r7@d644736`](https://github.com/adonm/vixen/commit/d6447361b4fb9d58241fdf82324e93f59b3217a2) | [adonm/vixen#1](https://github.com/adonm/vixen/pull/1) |
+
+Both overlays resolve the exact dependency pins recorded here and pass their
+Flutter analysis/test suites with `sdk/flutter/bin/flutter`. Native GTK4 builds
+remain gated on a matching `libflutter_linux_gtk4.so`: the pinned framework and
+tooling support the GTK4 variant, but the public engine precache currently
+contains only the GTK3 Linux embedder artifact. Keep the app PRs draft until
+that engine artifact is built or supplied and the native bundles pass.
+
 ## Parent commands
 
 ```sh

@@ -15,8 +15,8 @@
       "kind": "app",
       "origin": "https://github.com/adonm/vixen.git",
       "upstream": null,
-      "branch": "refactor/flutter-renderer-r7",
-      "commit": "d4287ddd0aaa68cc98506064402a3a85ee88dcb2",
+      "branch": "main",
+      "commit": "6e40eb509eed84f14dc336d35b42c9570609412c",
       "purpose": "Flutter-hosted browser application and renderer"
     },
     {
