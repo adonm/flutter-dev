@@ -1,0 +1,104 @@
+name: Pinned cross-platform Flutter SDK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pinned-flutter-sdk
+  cancel-in-progress: false
+
+env:
+  FLUTTER_SDK_REVISION: 328b829d35a3a5d7a00e0c2f0e97eb8cc0d97188
+
+jobs:
+  build:
+    name: Build ${{ matrix.platform }} SDK
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux-x64
+            runner: ubuntu-24.04
+            python: python3
+          - platform: macos-arm64
+            runner: macos-15
+            python: python3
+          - platform: macos-x64
+            runner: macos-15-intel
+            python: python3
+          - platform: windows-x64
+            runner: windows-2025
+            python: python
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Install Linux archive and linkage tools
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends binutils xz-utils
+
+      - name: Prepare exact host SDK
+        shell: bash
+        run: >-
+          ${{ matrix.python }} scripts/flutter_sdk.py prepare
+          "${{ matrix.platform }}" "$RUNNER_TEMP/flutter"
+
+      - name: Package deterministic host SDK
+        shell: bash
+        run: >-
+          ${{ matrix.python }} scripts/flutter_sdk.py package
+          "${{ matrix.platform }}" "$RUNNER_TEMP/flutter" dist/flutter-sdk
+
+      - name: Upload host SDK
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: flutter-sdk-${{ matrix.platform }}-${{ env.FLUTTER_SDK_REVISION }}
+          path: dist/flutter-sdk/*
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+
+  manifest:
+    name: Assemble SDK release artifact
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Download host SDKs
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: flutter-sdk-*-${{ env.FLUTTER_SDK_REVISION }}
+          path: dist/flutter-sdk
+          merge-multiple: true
+
+      - name: Generate manifest and Mise platform configuration
+        run: python3 scripts/flutter_sdk.py combine dist/flutter-sdk
+
+      - name: Upload complete SDK release artifact
+        id: upload
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: flutter-sdk-${{ env.FLUTTER_SDK_REVISION }}
+          path: dist/flutter-sdk/*
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 0
+
+      - name: Report release artifact identity
+        env:
+          ARTIFACT_DIGEST: ${{ steps.upload.outputs.artifact-digest }}
+          ARTIFACT_ID: ${{ steps.upload.outputs.artifact-id }}
+          ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
+        run: |
+          printf 'artifact-id=%s\nartifact-digest=%s\nartifact-url=%s\n' \
+            "$ARTIFACT_ID" "$ARTIFACT_DIGEST" "$ARTIFACT_URL"

@@ -94,12 +94,30 @@ Published engine:
 - Build: [GitHub Actions run 29490464079](https://github.com/adonm/flutter-dev/actions/runs/29490464079)
 - Publication: [GitHub Actions run 29492073133](https://github.com/adonm/flutter-dev/actions/runs/29492073133)
 
+### Mise-compatible host SDK archives
+
+The manually dispatched
+[`Pinned cross-platform Flutter SDK`](.github/workflows/flutter-sdk.yml) workflow
+builds native Linux x64, macOS Arm64, macOS x64, and Windows x64 archives from
+the exact framework pin. Each archive contains the matching Dart SDK and only
+the host's reviewed precache set. Linux additionally contains the immutable
+GTK4 engine above. The aggregate artifact includes per-archive SHA-256 files,
+`flutter-sdk-manifest.json`, and a generated `flutter-sdk.mise.toml` platform
+table for Mise's `http:flutter` backend.
+
+[`Publish pinned cross-platform Flutter SDK`](.github/workflows/publish-flutter-sdk.yml)
+accepts only the aggregate artifact from that successful workflow, revalidates
+its run and byte identities, and publishes an immutable release. Applications
+therefore download one checksum-pinned archive through Mise instead of cloning,
+deepening, and precaching Flutter independently in every CI job.
+
 ## Parent commands
 
 ```sh
 just status          # show recursive status and validate local pins
 just check           # deterministic local metadata/worktree checks
 just check-remotes   # anonymously match every public branch tip to its pin
+just check-flutter-sdk # validate the host SDK artifact contract
 just check-zuko      # run Zuko's own gate
 just check-vixen     # run Vixen's R7 gate
 just check-libghostty

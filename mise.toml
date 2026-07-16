@@ -1,5 +1,6 @@
 # Parent-repository orchestration only. Each submodule owns its build toolchain.
 [tools]
+actionlint = "1.7.12"
 just = "1.55.1"
 python = "3.14.3"
 

@@ -21,6 +21,17 @@ check:
     git diff --cached --check
     git diff --exit-code -- Justfile scripts/submodules.py
     python3 scripts/submodules.py check
+    python3 scripts/flutter_sdk.py check-config
+    python3 -m unittest scripts/test_flutter_sdk.py
+
+[group('workspace')]
+check-actions:
+    actionlint .github/workflows/*.yml
+
+[group('sdk')]
+check-flutter-sdk:
+    python3 scripts/flutter_sdk.py check-config
+    python3 -m unittest scripts/test_flutter_sdk.py
 
 [group('workspace')]
 check-remotes:

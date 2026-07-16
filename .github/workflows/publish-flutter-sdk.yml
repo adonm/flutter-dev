@@ -1,0 +1,167 @@
+name: Publish pinned cross-platform Flutter SDK
+
+on:
+  workflow_dispatch:
+    inputs:
+      artifact_id:
+        description: Complete SDK artifact ID from a successful SDK build
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pinned-flutter-sdk-release
+  cancel-in-progress: false
+
+env:
+  FLUTTER_SDK_REVISION: 328b829d35a3a5d7a00e0c2f0e97eb8cc0d97188
+  RELEASE_TAG: flutter-sdk-328b829d35a3a5d7a00e0c2f0e97eb8cc0d97188
+
+jobs:
+  publish:
+    name: Verify and publish immutable SDK archives
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: write
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Download exact SDK build artifact
+        env:
+          ARTIFACT_ID: ${{ inputs.artifact_id }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euxo pipefail
+          [[ $ARTIFACT_ID =~ ^[0-9]+$ ]]
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID" \
+            > "$RUNNER_TEMP/artifact.json"
+          run_id=$(jq -r '.workflow_run.id' "$RUNNER_TEMP/artifact.json")
+          [[ $run_id =~ ^[0-9]+$ ]]
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run_id" \
+            > "$RUNNER_TEMP/run.json"
+          workflow_id=$(gh api \
+            "repos/$GITHUB_REPOSITORY/actions/workflows/flutter-sdk.yml" \
+            --jq '.id')
+          ARTIFACT="$RUNNER_TEMP/artifact.json" \
+          EXPECTED_WORKFLOW_ID="$workflow_id" \
+          RUN="$RUNNER_TEMP/run.json" \
+          python3 - <<'PY'
+          import json
+          import os
+          import pathlib
+
+          artifact = json.loads(pathlib.Path(os.environ["ARTIFACT"]).read_text())
+          run = json.loads(pathlib.Path(os.environ["RUN"]).read_text())
+          expected_name = "flutter-sdk-" + os.environ["FLUTTER_SDK_REVISION"]
+          if artifact.get("name") != expected_name or artifact.get("expired") is not False:
+              raise SystemExit("unexpected or expired Flutter SDK artifact")
+          digest = artifact.get("digest", "")
+          if not digest.startswith("sha256:") or len(digest) != 71:
+              raise SystemExit(f"invalid SDK artifact digest: {digest}")
+          expected_run = {
+              "conclusion": "success",
+              "event": "workflow_dispatch",
+              "head_branch": "main",
+              "head_repository": os.environ["GITHUB_REPOSITORY"],
+              "path": ".github/workflows/flutter-sdk.yml",
+              "status": "completed",
+              "workflow_id": int(os.environ["EXPECTED_WORKFLOW_ID"]),
+          }
+          actual_run = {
+              "conclusion": run.get("conclusion"),
+              "event": run.get("event"),
+              "head_branch": run.get("head_branch"),
+              "head_repository": (run.get("head_repository") or {}).get("full_name"),
+              "path": run.get("path"),
+              "status": run.get("status"),
+              "workflow_id": run.get("workflow_id"),
+          }
+          if actual_run != expected_run:
+              raise SystemExit(f"SDK build run mismatch: {actual_run}")
+          workflow_run = artifact.get("workflow_run") or {}
+          if workflow_run.get("id") != run.get("id"):
+              raise SystemExit("SDK artifact does not belong to the validated run")
+          if workflow_run.get("head_sha") != run.get("head_sha"):
+              raise SystemExit("SDK artifact and build run commit mismatch")
+          PY
+          curl --fail --location --retry 3 \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID/zip" \
+            --output "$RUNNER_TEMP/flutter-sdk-artifact.zip"
+          digest=$(jq -r '.digest | sub("^sha256:"; "")' "$RUNNER_TEMP/artifact.json")
+          printf '%s  %s\n' "$digest" "$RUNNER_TEMP/flutter-sdk-artifact.zip" \
+            | sha256sum --check
+          mkdir "$RUNNER_TEMP/flutter-sdk-artifact"
+          unzip -q "$RUNNER_TEMP/flutter-sdk-artifact.zip" \
+            -d "$RUNNER_TEMP/flutter-sdk-artifact"
+
+      - name: Verify SDK release contract
+        run: |
+          set -euxo pipefail
+          python3 scripts/flutter_sdk.py verify-release \
+            "$RUNNER_TEMP/flutter-sdk-artifact"
+          find "$RUNNER_TEMP/flutter-sdk-artifact" \
+            -maxdepth 1 -type f -printf '%f %s\n' | sort
+
+      - name: Publish immutable SDK release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_ARTIFACT_ID: ${{ inputs.artifact_id }}
+        run: |
+          set -euxo pipefail
+          test "$GITHUB_REF" = refs/heads/main
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release already exists: $RELEASE_TAG" >&2
+            exit 1
+          fi
+          root="$RUNNER_TEMP/flutter-sdk-artifact"
+          source_sha=$(jq -r '.head_sha' "$RUNNER_TEMP/run.json")
+          mapfile -t assets < <(find "$root" -maxdepth 1 -type f \( \
+            -name '*.tar.xz' -o -name '*.zip' -o -name '*.sha256' -o \
+            -name 'flutter-sdk-manifest.json' -o -name 'flutter-sdk.mise.toml' \
+            \) -print | sort)
+          test "${#assets[@]}" -eq 10
+          cat > "$RUNNER_TEMP/release-notes.md" <<EOF
+          Immutable host-native Flutter SDK archives for the GTK4 integration stack.
+
+          - Flutter framework: \`$FLUTTER_SDK_REVISION\`
+          - Source Actions artifact: \`$SOURCE_ARTIFACT_ID\`
+          - Hosts: Linux x64, macOS Arm64, macOS x64, Windows x64
+          - Installation: copy the published \`flutter-sdk.mise.toml\` platform
+            table into a reviewed Mise configuration.
+
+          Every archive is precached for its host. The Linux archive additionally
+          contains the checksum-verified GTK4 release engine.
+          EOF
+          gh release create "$RELEASE_TAG" "${assets[@]}" \
+            --latest=false \
+            --notes-file "$RUNNER_TEMP/release-notes.md" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$source_sha" \
+            --title "Flutter SDK $FLUTTER_SDK_REVISION"
+
+      - name: Verify published SDK release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euxo pipefail
+          published="$RUNNER_TEMP/published"
+          mkdir "$published"
+          gh release download "$RELEASE_TAG" --dir "$published" \
+            --repo "$GITHUB_REPOSITORY"
+          test "$(find "$published" -maxdepth 1 -type f | wc -l)" -eq 10
+          for sidecar in "$published"/*.sha256; do
+            (cd "$published" && sha256sum --check "$(basename "$sidecar")")
+          done
+          release=$(gh release view "$RELEASE_TAG" \
+            --json isDraft,isImmutable,isPrerelease,tagName,url \
+            --repo "$GITHUB_REPOSITORY")
+          jq -e --arg tag "$RELEASE_TAG" \
+            '.isDraft == false and .isImmutable == true and .isPrerelease == false and .tagName == $tag' \
+            <<<"$release"
