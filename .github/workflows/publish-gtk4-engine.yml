@@ -39,7 +39,7 @@ jobs:
           ARTIFACT_ID: ${{ inputs.artifact_id }}
         run: |
           set -euxo pipefail
-          test -n "$ARTIFACT_ID"
+          [[ $ARTIFACT_ID =~ ^[0-9]+$ ]]
           curl --fail --location --retry 3 \
             --header "Authorization: Bearer $GH_TOKEN" \
             --header 'X-GitHub-Api-Version: 2022-11-28' \
@@ -58,8 +58,7 @@ jobs:
           artifact="$RUNNER_TEMP/engine-artifact"
           library="$artifact/libflutter_linux_gtk4.so"
           metadata="$artifact/engine-metadata.json"
-          test "$EXPECTED_SHA256" != ""
-          test "${#EXPECTED_SHA256}" -eq 64
+          [[ $EXPECTED_SHA256 =~ ^[0-9a-f]{64}$ ]]
           test -f "$library"
           test -f "$metadata"
           test -f "$artifact/libflutter_linux_gtk4.so.sha256"
