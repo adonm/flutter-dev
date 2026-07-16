@@ -21,6 +21,9 @@ concurrency:
 
 env:
   FLUTTER_SDK_REVISION: 00fee9824a795ee9b5794e0a0e2bc5975e54dba8
+  ENGINE_CONTENT_HASH: 469f2b34de41cab5f677ba84d6e9099c0e682d1e
+  DART_REVISION: d402ff7c9c8442d64aa8148609480aa0e04a24fd
+  DEPOT_TOOLS_REVISION: 9073d17d5650ede601bc1f59c822973d2c25b86a
   RELEASE_TAG: flutter-engine-gtk4-00fee9824a795ee9b5794e0a0e2bc5975e54dba8
 
 jobs:
@@ -81,19 +84,30 @@ jobs:
           grep -F '[  PASSED  ] 620 tests.' "$artifact/gtk4-engine-tests.log"
           EXPECTED_SHA256="$EXPECTED_SHA256" METADATA="$metadata" python3 - <<'PY'
           import json
+          import hashlib
           import os
           import pathlib
 
-          metadata = json.loads(pathlib.Path(os.environ["METADATA"]).read_text())
+          metadata_path = pathlib.Path(os.environ["METADATA"])
+          library = metadata_path.with_name("libflutter_linux_gtk4.so")
+          metadata = json.loads(metadata_path.read_text())
           expected = {
               "schema": 1,
               "platform": "linux-x64-release",
               "library": "libflutter_linux_gtk4.so",
               "library_sha256": os.environ["EXPECTED_SHA256"],
+              "library_size": library.stat().st_size,
               "flutter_sdk_revision": os.environ["FLUTTER_SDK_REVISION"],
+              "engine_content_hash": os.environ["ENGINE_CONTENT_HASH"],
+              "dart_revision": os.environ["DART_REVISION"],
+              "depot_tools_revision": os.environ["DEPOT_TOOLS_REVISION"],
+              "gn_target": "flutter/shell/platform/linux:flutter_gtk",
+              "gn_out": "host_release_gtk4",
               "runtime_mode": "release",
               "tests": 620,
           }
+          if hashlib.sha256(library.read_bytes()).hexdigest() != os.environ["EXPECTED_SHA256"]:
+              raise SystemExit("engine library changed during metadata validation")
           actual = {key: metadata.get(key) for key in expected}
           if actual != expected:
               raise SystemExit(f"engine metadata mismatch: expected {expected}, got {actual}")
@@ -107,6 +121,9 @@ jobs:
           SOURCE_ARTIFACT_ID: ${{ inputs.artifact_id }}
         run: |
           set -euxo pipefail
+          test "$GITHUB_REF" = refs/heads/main
+          gh api "repos/$GITHUB_REPOSITORY/immutable-releases" \
+            --jq '.enabled' | grep -Fx true
           if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             echo "Release already exists: $RELEASE_TAG" >&2
             exit 1
@@ -158,6 +175,11 @@ jobs:
             "$EXPECTED_SHA256" \
             "$destination/libflutter_linux_gtk4.so" \
             | sha256sum --check
-          gh release view "$RELEASE_TAG" \
-            --json isDraft,isPrerelease,tagName,url \
-            --repo "$GITHUB_REPOSITORY"
+          release=$(gh release view "$RELEASE_TAG" \
+            --json isDraft,isImmutable,isPrerelease,tagName,url \
+            --repo "$GITHUB_REPOSITORY")
+          printf '%s\n' "$release"
+          jq -e \
+            --arg tag "$RELEASE_TAG" \
+            '.isDraft == false and .isImmutable == true and .isPrerelease == false and .tagName == $tag' \
+            <<<"$release"
