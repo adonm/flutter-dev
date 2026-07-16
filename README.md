@@ -69,6 +69,23 @@ engine precache still contains only the GTK3 Linux embedder artifact, so keep
 the app PRs draft until the matching GTK4 engine artifact is published for
 ordinary CI builds.
 
+### CI-built Linux GTK4 engine
+
+The manually dispatched [`Pinned GTK4 Flutter engine`](.github/workflows/gtk4-engine.yml)
+workflow checks out the exact `sdk/flutter` gitlink, pins depot_tools, builds the
+Linux x64 release engine on Ubuntu 24.04, runs the GTK4 engine tests under a
+headless compositor, rejects GTK3/debug linkage, and uploads the library with
+its SHA-256 and build metadata. The build job has read-only repository
+permissions.
+
+Publication is a separate, manually dispatched
+[`Publish pinned GTK4 Flutter engine`](.github/workflows/publish-gtk4-engine.yml)
+workflow. It accepts one reviewed Actions artifact ID and library SHA-256,
+revalidates the artifact, and creates a checksummed GitHub Release whose tag and
+assets become immutable when the draft is published. Downstream installers pin
+the release tag, SDK revision, engine content hash, and library SHA-256 before
+atomically adding the GTK4 library to Flutter's normal Linux release cache.
+
 ## Parent commands
 
 ```sh

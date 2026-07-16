@@ -16,20 +16,21 @@ permissions:
   contents: read
 
 concurrency:
-  group: github-pages
+  group: pinned-gtk4-flutter-engine-release
   cancel-in-progress: false
 
 env:
   FLUTTER_SDK_REVISION: 00fee9824a795ee9b5794e0a0e2bc5975e54dba8
+  RELEASE_TAG: flutter-engine-gtk4-00fee9824a795ee9b5794e0a0e2bc5975e54dba8
 
 jobs:
-  stage:
-    name: Verify publication input
+  publish:
+    name: Verify and publish immutable release
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
       actions: read
-      contents: read
+      contents: write
 
     steps:
       - name: Download exact build artifact
@@ -47,7 +48,7 @@ jobs:
             --output "$RUNNER_TEMP/engine-artifact.zip"
           mkdir "$RUNNER_TEMP/engine-artifact"
           unzip -q "$RUNNER_TEMP/engine-artifact.zip" -d "$RUNNER_TEMP/engine-artifact"
-          find "$RUNNER_TEMP/engine-artifact" -maxdepth 2 -type f -printf '%P %s\n' | sort
+          find "$RUNNER_TEMP/engine-artifact" -maxdepth 1 -type f -printf '%f %s\n' | sort
 
       - name: Verify engine identity and linkage
         shell: bash
@@ -62,6 +63,7 @@ jobs:
           test -f "$library"
           test -f "$metadata"
           test -f "$artifact/libflutter_linux_gtk4.so.sha256"
+          test -f "$artifact/gtk4-engine-tests.log"
           printf '%s  %s\n' "$EXPECTED_SHA256" "$library" | sha256sum --check
           (
             cd "$artifact"
@@ -72,6 +74,11 @@ jobs:
             echo 'GTK4 engine directly links GTK3' >&2
             exit 1
           fi
+          if readelf --sections --wide "$library" | grep -Eq '\.debug_(info|line)\b'; then
+            echo 'GTK4 engine contains debug sections' >&2
+            exit 1
+          fi
+          grep -F '[  PASSED  ] 620 tests.' "$artifact/gtk4-engine-tests.log"
           EXPECTED_SHA256="$EXPECTED_SHA256" METADATA="$metadata" python3 - <<'PY'
           import json
           import os
@@ -92,68 +99,65 @@ jobs:
               raise SystemExit(f"engine metadata mismatch: expected {expected}, got {actual}")
           PY
 
-      - name: Create versioned Pages tree
+      - name: Publish immutable GitHub Release
         shell: bash
         env:
+          GH_TOKEN: ${{ github.token }}
           EXPECTED_SHA256: ${{ inputs.library_sha256 }}
           SOURCE_ARTIFACT_ID: ${{ inputs.artifact_id }}
         run: |
           set -euxo pipefail
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release already exists: $RELEASE_TAG" >&2
+            exit 1
+          fi
           artifact="$RUNNER_TEMP/engine-artifact"
-          destination="$RUNNER_TEMP/site/flutter-engine/$FLUTTER_SDK_REVISION"
-          mkdir -p "$destination"
-          install -m 0644 "$artifact/libflutter_linux_gtk4.so" "$destination/"
-          install -m 0644 "$artifact/libflutter_linux_gtk4.so.sha256" "$destination/"
-          install -m 0644 "$artifact/engine-metadata.json" "$destination/"
-          DESTINATION="$destination" \
-          EXPECTED_SHA256="$EXPECTED_SHA256" \
-          SOURCE_ARTIFACT_ID="$SOURCE_ARTIFACT_ID" \
-          python3 - <<'PY'
-          import json
-          import os
-          import pathlib
+          cat > "$RUNNER_TEMP/release-notes.md" <<EOF
+          Pinned Linux x64 release Flutter engine with GTK4 embedding support.
 
-          destination = pathlib.Path(os.environ["DESTINATION"])
-          index = {
-              "artifact_id": int(os.environ["SOURCE_ARTIFACT_ID"]),
-              "flutter_sdk_revision": os.environ["FLUTTER_SDK_REVISION"],
-              "library": "libflutter_linux_gtk4.so",
-              "library_sha256": os.environ["EXPECTED_SHA256"],
-              "metadata": "engine-metadata.json",
-              "schema": 1,
-          }
-          (destination / "index.json").write_text(
-              json.dumps(index, indent=2, sort_keys=True) + "\n"
-          )
-          root = destination.parents[1]
-          (root / "index.html").write_text(
-              "<!doctype html><meta charset=utf-8>"
-              "<title>flutter-dev build artifacts</title>"
-              "<h1>flutter-dev build artifacts</h1>"
-              "<p>Machine-consumed pinned artifacts; verify SHA-256 before use.</p>\n"
-          )
-          PY
-          find "$RUNNER_TEMP/site" -type f -printf '%P %s\n' | sort
+          - Flutter SDK revision: \`$FLUTTER_SDK_REVISION\`
+          - Library SHA-256: \`$EXPECTED_SHA256\`
+          - Source Actions artifact ID: \`$SOURCE_ARTIFACT_ID\`
+          - GTK4 engine tests: 620 passed
 
-      - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
-        with:
-          path: ${{ runner.temp }}/site
-          retention-days: 1
+          Consumers must use the exact Flutter SDK revision above, run its normal
+          Linux precache, verify the checksum, and install only
+          \`libflutter_linux_gtk4.so\` into
+          \`bin/cache/artifacts/engine/linux-x64-release\`.
+          EOF
+          gh release create "$RELEASE_TAG" \
+            "$artifact/libflutter_linux_gtk4.so" \
+            "$artifact/libflutter_linux_gtk4.so.sha256" \
+            "$artifact/engine-metadata.json" \
+            "$artifact/gtk4-engine-tests.log" \
+            --draft \
+            --latest=false \
+            --notes-file "$RUNNER_TEMP/release-notes.md" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "Flutter GTK4 engine $FLUTTER_SDK_REVISION"
+          gh release edit "$RELEASE_TAG" \
+            --draft=false \
+            --latest=false \
+            --repo "$GITHUB_REPOSITORY"
 
-  deploy:
-    name: Deploy public engine artifact
-    needs: stage
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Deploy GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+      - name: Verify published release assets
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_SHA256: ${{ inputs.library_sha256 }}
+        run: |
+          set -euxo pipefail
+          destination="$RUNNER_TEMP/published"
+          mkdir "$destination"
+          gh release download "$RELEASE_TAG" \
+            --dir "$destination" \
+            --repo "$GITHUB_REPOSITORY"
+          test "$(find "$destination" -maxdepth 1 -type f | wc -l)" -eq 4
+          printf '%s  %s\n' \
+            "$EXPECTED_SHA256" \
+            "$destination/libflutter_linux_gtk4.so" \
+            | sha256sum --check
+          gh release view "$RELEASE_TAG" \
+            --json isDraft,isPrerelease,tagName,url \
+            --repo "$GITHUB_REPOSITORY"
