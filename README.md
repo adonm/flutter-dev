@@ -52,15 +52,15 @@ The parent gitlinks remain Git's authoritative checkout pins.
 ## GTK4 validation targets
 
 The parent currently pins the GTK4 Flutter framework and plugin validation
-commits, while the default app gitlinks remain on their release-ready `main`
-branches. App consumption is isolated in draft downstream overlays:
+commits. Zuko consumes that stack from its `v0.10.8` release commit, while
+Vixen consumption remains isolated in a draft downstream overlay:
 
-| App | Overlay | Review |
+| App | Target | Review |
 |---|---|---|
-| Zuko | [`vendor/zuko/gtk4@e643dca`](https://github.com/adonm/zuko/commit/e643dca2cb517d49cf304e644c2d57cc67dec87b) | [adonm/zuko#2](https://github.com/adonm/zuko/pull/2) |
+| Zuko | [`v0.10.8@ce79d47`](https://github.com/adonm/zuko/commit/ce79d47ed0eec6a09e669a968f9d9f817e516ed9) | [merged adonm/zuko#2](https://github.com/adonm/zuko/pull/2) |
 | Vixen | [`vendor/vixen/gtk4-r7@91311ea`](https://github.com/adonm/vixen/commit/91311ea0dfcb2274129b53b4d2e78a07c16517fe) | [adonm/vixen#1](https://github.com/adonm/vixen/pull/1) |
 
-Both overlays resolve the exact dependency pins recorded here. Their GTK4 CI
+Both targets resolve the exact dependency pins recorded here. Their GTK4 CI
 jobs clone the pinned Flutter framework, populate its normal Linux precache,
 verify and install the matching immutable GTK4 engine asset, and build without
 local-engine flags. The package gates reject GTK3 linkage, debug sections, and
