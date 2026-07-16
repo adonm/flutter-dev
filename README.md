@@ -52,12 +52,13 @@ The parent gitlinks remain Git's authoritative checkout pins.
 ## GTK4 validation targets
 
 The parent currently pins the GTK4 Flutter framework and plugin validation
-commits. Zuko consumes that stack from its `v0.10.8` release commit, while
+commits. Zuko's immutable `v0.10.8` release points to `ec0fc66`; the parent
+pins the follow-up `7056e6a` commit containing its Appetize recovery fix.
 Vixen consumption remains isolated in a draft downstream overlay:
 
 | App | Target | Review |
 |---|---|---|
-| Zuko | [`v0.10.8@c56aed0`](https://github.com/adonm/zuko/commit/c56aed0a42db8fee1be2cfb367af6d56c16b4bee) | [merged adonm/zuko#2](https://github.com/adonm/zuko/pull/2) |
+| Zuko | [`v0.10.8@ec0fc66`](https://github.com/adonm/zuko/commit/ec0fc66ed351c443c7cc733d2758ad184526e6f5); parent pin [`7056e6a`](https://github.com/adonm/zuko/commit/7056e6aa38f682aad0838b78d5be8d88a301d467) | [merged adonm/zuko#2](https://github.com/adonm/zuko/pull/2) |
 | Vixen | [`vendor/vixen/gtk4-r7@91311ea`](https://github.com/adonm/vixen/commit/91311ea0dfcb2274129b53b4d2e78a07c16517fe) | [adonm/vixen#1](https://github.com/adonm/vixen/pull/1) |
 
 Both targets resolve the exact dependency pins recorded here. Their GTK4 CI
