@@ -58,7 +58,7 @@ branches. App consumption is isolated in draft downstream overlays:
 | App | Overlay | Review |
 |---|---|---|
 | Zuko | [`vendor/zuko/gtk4@e643dca`](https://github.com/adonm/zuko/commit/e643dca2cb517d49cf304e644c2d57cc67dec87b) | [adonm/zuko#2](https://github.com/adonm/zuko/pull/2) |
-| Vixen | [`vendor/vixen/gtk4-r7@063931e`](https://github.com/adonm/vixen/commit/063931e1a4cc7480bba96b83c55c826e8dfba1d4) | [adonm/vixen#1](https://github.com/adonm/vixen/pull/1) |
+| Vixen | [`vendor/vixen/gtk4-r7@91311ea`](https://github.com/adonm/vixen/commit/91311ea0dfcb2274129b53b4d2e78a07c16517fe) | [adonm/vixen#1](https://github.com/adonm/vixen/pull/1) |
 
 Both overlays resolve the exact dependency pins recorded here. Their GTK4 CI
 jobs clone the pinned Flutter framework, populate its normal Linux precache,
