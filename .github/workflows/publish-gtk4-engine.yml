@@ -144,11 +144,11 @@ jobs:
             sha256sum --check libflutter_linux_gtk4.so.sha256
           )
           readelf --dynamic --wide "$library" | grep -F 'Shared library: [libgtk-4.so.1]'
-          if readelf --dynamic --wide "$library" | grep -Fq 'Shared library: [libgtk-3.so.0]'; then
+          if readelf --dynamic --wide "$library" | grep -F 'Shared library: [libgtk-3.so.0]' >/dev/null; then
             echo 'GTK4 engine directly links GTK3' >&2
             exit 1
           fi
-          if readelf --sections --wide "$library" | grep -Eq '\.debug_(info|line)\b'; then
+          if readelf --sections --wide "$library" | grep -E '\.debug_(info|line)\b' >/dev/null; then
             echo 'GTK4 engine contains debug sections' >&2
             exit 1
           fi
