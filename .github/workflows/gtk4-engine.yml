@@ -1,0 +1,229 @@
+name: Pinned GTK4 Flutter engine
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pinned-gtk4-flutter-engine
+  cancel-in-progress: false
+
+env:
+  FLUTTER_SDK_REVISION: 00fee9824a795ee9b5794e0a0e2bc5975e54dba8
+  DEPOT_TOOLS_REVISION: 9073d17d5650ede601bc1f59c822973d2c25b86a
+  ENGINE_OUT: host_release_gtk4
+  DEPOT_TOOLS_UPDATE: "0"
+
+jobs:
+  build:
+    name: Linux x64 release engine
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout integration pin
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Checkout pinned Flutter SDK
+        shell: bash
+        run: |
+          set -euxo pipefail
+          git submodule update --init --depth 1 sdk/flutter
+          test "$(git -C sdk/flutter rev-parse HEAD)" = "$FLUTTER_SDK_REVISION"
+
+      - name: Reclaim runner disk
+        shell: bash
+        run: |
+          set -euxo pipefail
+          sudo rm -rf \
+            /opt/ghc \
+            /opt/hostedtoolcache/CodeQL \
+            /usr/local/.ghcup \
+            /usr/local/lib/android \
+            /usr/share/dotnet
+          sudo apt-get clean
+          df -h /
+
+      - name: Install Linux engine dependencies
+        shell: bash
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cage \
+            curl \
+            libegl1-mesa-dev \
+            libfontconfig1-dev \
+            libgtk-3-dev \
+            libgtk-4-dev \
+            libwayland-dev \
+            ninja-build \
+            pkg-config \
+            python3 \
+            unzip \
+            xz-utils
+          sudo rm -rf /var/lib/apt/lists/*
+
+      - name: Install pinned depot_tools
+        shell: bash
+        run: |
+          set -euxo pipefail
+          git clone --filter=blob:none \
+            https://chromium.googlesource.com/chromium/tools/depot_tools.git \
+            "$RUNNER_TEMP/depot_tools"
+          git -C "$RUNNER_TEMP/depot_tools" checkout "$DEPOT_TOOLS_REVISION"
+          echo "$RUNNER_TEMP/depot_tools" >> "$GITHUB_PATH"
+
+      - name: Synchronize pinned engine dependencies
+        working-directory: sdk/flutter
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cp engine/scripts/standard.gclient .gclient
+          cat >> .gclient <<'EOF'
+          solutions[0]["custom_vars"] = {
+            "download_android_deps": False,
+            "download_fuchsia_deps": False,
+            "download_jdk": False,
+            "use_rbe": False,
+          }
+          EOF
+          gclient sync --no-history
+          test "$(git -C engine/src/flutter rev-parse HEAD)" = "$FLUTTER_SDK_REVISION"
+          df -h /
+          available_kib=$(df --output=avail -k . | tail -n 1)
+          test "$available_kib" -ge $((8 * 1024 * 1024))
+
+      - name: Configure release engine
+        working-directory: sdk/flutter
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 engine/src/flutter/tools/gn \
+            --runtime-mode release \
+            --enable-fontconfig \
+            --prebuilt-dart-sdk \
+            --no-lto \
+            --no-goma \
+            --target-dir "$ENGINE_OUT"
+
+      - name: Build GTK engine and tests
+        working-directory: sdk/flutter
+        shell: bash
+        run: |
+          set -euxo pipefail
+          ninja -C "engine/src/out/$ENGINE_OUT" \
+            flutter/shell/platform/linux:flutter_gtk \
+            flutter/shell/platform/linux:flutter_linux_gtk4_unittests
+
+      - name: Run GTK4 engine tests
+        working-directory: sdk/flutter
+        shell: bash
+        run: |
+          set -euxo pipefail
+          runtime="$RUNNER_TEMP/gtk4-engine-runtime"
+          install -d -m 700 "$runtime"
+          XDG_RUNTIME_DIR="$runtime" \
+          GDK_BACKEND=wayland \
+          GDK_DISABLE=gl,vulkan \
+          WLR_BACKENDS=headless \
+          WLR_LIBINPUT_NO_DEVICES=1 \
+          WLR_RENDERER=pixman \
+          LIBGL_ALWAYS_SOFTWARE=1 \
+            cage -- "engine/src/out/$ENGINE_OUT/flutter_linux_gtk4_unittests" \
+            2>&1 | tee "$RUNNER_TEMP/gtk4-engine-tests.log"
+          grep -F '[  PASSED  ] 620 tests.' "$RUNNER_TEMP/gtk4-engine-tests.log"
+
+      - name: Validate and stage engine library
+        working-directory: sdk/flutter
+        shell: bash
+        run: |
+          set -euxo pipefail
+          library="engine/src/out/$ENGINE_OUT/libflutter_linux_gtk4.so"
+          artifact="$RUNNER_TEMP/flutter-linux-x64-release-gtk4-$FLUTTER_SDK_REVISION"
+          test -f "$library"
+          readelf --dynamic --wide "$library" | grep -F 'Shared library: [libgtk-4.so.1]'
+          if readelf --dynamic --wide "$library" | grep -Fq 'Shared library: [libgtk-3.so.0]'; then
+            echo 'GTK4 engine directly links GTK3' >&2
+            exit 1
+          fi
+          if readelf --sections --wide "$library" | grep -Eq '\.debug_(info|line)\b'; then
+            echo 'GTK4 engine contains debug sections' >&2
+            exit 1
+          fi
+          if ldd "$library" | grep -Fq 'not found'; then
+            echo 'GTK4 engine has an unresolved dependency' >&2
+            exit 1
+          fi
+          mkdir -p "$artifact"
+          install -m 0644 "$library" "$artifact/libflutter_linux_gtk4.so"
+          cp "$RUNNER_TEMP/gtk4-engine-tests.log" "$artifact/"
+          (
+            cd "$artifact"
+            sha256sum libflutter_linux_gtk4.so > libflutter_linux_gtk4.so.sha256
+          )
+          ARTIFACT="$artifact" python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          import pathlib
+          import re
+          import subprocess
+
+          root = pathlib.Path.cwd()
+          artifact = pathlib.Path(os.environ["ARTIFACT"])
+          library = artifact / "libflutter_linux_gtk4.so"
+          args = (root / "engine/src/out" / os.environ["ENGINE_OUT"] / "args.gn").read_text()
+
+          def gn_value(name: str) -> str:
+              match = re.search(rf'^{re.escape(name)} = "([^"]+)"$', args, re.MULTILINE)
+              if match is None:
+                  raise SystemExit(f"missing GN value: {name}")
+              return match.group(1)
+
+          metadata = {
+              "schema": 1,
+              "platform": "linux-x64-release",
+              "library": library.name,
+              "library_sha256": hashlib.sha256(library.read_bytes()).hexdigest(),
+              "library_size": library.stat().st_size,
+              "flutter_sdk_revision": subprocess.check_output(
+                  ["git", "-C", "engine/src/flutter", "rev-parse", "HEAD"], text=True
+              ).strip(),
+              "engine_content_hash": gn_value("content_hash"),
+              "dart_revision": gn_value("dart_version"),
+              "depot_tools_revision": os.environ["DEPOT_TOOLS_REVISION"],
+              "gn_target": "flutter/shell/platform/linux:flutter_gtk",
+              "gn_out": os.environ["ENGINE_OUT"],
+              "runtime_mode": "release",
+              "tests": 620,
+          }
+          if metadata["flutter_sdk_revision"] != os.environ["FLUTTER_SDK_REVISION"]:
+              raise SystemExit("Flutter SDK revision changed during the build")
+          (artifact / "engine-metadata.json").write_text(
+              json.dumps(metadata, indent=2, sort_keys=True) + "\n"
+          )
+          PY
+          cat "$artifact/engine-metadata.json"
+          cat "$artifact/libflutter_linux_gtk4.so.sha256"
+
+      - name: Upload pinned GTK4 engine
+        id: upload
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: flutter-linux-x64-release-gtk4-${{ env.FLUTTER_SDK_REVISION }}
+          path: ${{ runner.temp }}/flutter-linux-x64-release-gtk4-${{ env.FLUTTER_SDK_REVISION }}
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Report artifact identity
+        shell: bash
+        env:
+          ARTIFACT_DIGEST: ${{ steps.upload.outputs.artifact-digest }}
+          ARTIFACT_ID: ${{ steps.upload.outputs.artifact-id }}
+          ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
+        run: |
+          printf 'artifact-id=%s\nartifact-digest=%s\nartifact-url=%s\n' \
+            "$ARTIFACT_ID" "$ARTIFACT_DIGEST" "$ARTIFACT_URL"
