@@ -44,11 +44,82 @@ jobs:
         run: |
           set -euxo pipefail
           [[ $ARTIFACT_ID =~ ^[0-9]+$ ]]
+          gh api \
+            "repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID" \
+            > "$RUNNER_TEMP/artifact.json"
+          run_id=$(jq -r '.workflow_run.id' "$RUNNER_TEMP/artifact.json")
+          [[ $run_id =~ ^[0-9]+$ ]]
+          gh api \
+            "repos/$GITHUB_REPOSITORY/actions/runs/$run_id" \
+            > "$RUNNER_TEMP/run.json"
+          expected_workflow_id=$(gh api \
+            "repos/$GITHUB_REPOSITORY/actions/workflows/gtk4-engine.yml" \
+            --jq '.id')
+          ARTIFACT="$RUNNER_TEMP/artifact.json" \
+          EXPECTED_WORKFLOW_ID="$expected_workflow_id" \
+          RUN="$RUNNER_TEMP/run.json" \
+          python3 - <<'PY'
+          import json
+          import os
+          import pathlib
+
+          artifact = json.loads(pathlib.Path(os.environ["ARTIFACT"]).read_text())
+          run = json.loads(pathlib.Path(os.environ["RUN"]).read_text())
+          expected_name = (
+              "flutter-linux-x64-release-gtk4-"
+              + os.environ["FLUTTER_SDK_REVISION"]
+          )
+          expected_artifact = {
+              "expired": False,
+              "name": expected_name,
+          }
+          actual_artifact = {key: artifact.get(key) for key in expected_artifact}
+          if actual_artifact != expected_artifact:
+              raise SystemExit(
+                  f"build artifact mismatch: expected {expected_artifact}, got {actual_artifact}"
+              )
+          digest = artifact.get("digest", "")
+          if not digest.startswith("sha256:") or len(digest) != 71:
+              raise SystemExit(f"invalid server artifact digest: {digest}")
+          expected_run = {
+              "conclusion": "success",
+              "event": "workflow_dispatch",
+              "head_branch": "main",
+              "head_repository": os.environ["GITHUB_REPOSITORY"],
+              "path": ".github/workflows/gtk4-engine.yml",
+              "status": "completed",
+              "workflow_id": int(os.environ["EXPECTED_WORKFLOW_ID"]),
+          }
+          actual_run = {
+              "conclusion": run.get("conclusion"),
+              "event": run.get("event"),
+              "head_branch": run.get("head_branch"),
+              "head_repository": (run.get("head_repository") or {}).get("full_name"),
+              "path": run.get("path"),
+              "status": run.get("status"),
+              "workflow_id": run.get("workflow_id"),
+          }
+          if actual_run != expected_run:
+              raise SystemExit(
+                  f"build run mismatch: expected {expected_run}, got {actual_run}"
+              )
+          workflow_run = artifact.get("workflow_run") or {}
+          if workflow_run.get("id") != run.get("id"):
+              raise SystemExit("artifact does not belong to the validated build run")
+          if workflow_run.get("head_sha") != run.get("head_sha"):
+              raise SystemExit("artifact and build run commit mismatch")
+          PY
           curl --fail --location --retry 3 \
             --header "Authorization: Bearer $GH_TOKEN" \
             --header 'X-GitHub-Api-Version: 2022-11-28' \
             "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID/zip" \
             --output "$RUNNER_TEMP/engine-artifact.zip"
+          artifact_digest=$(jq -r '.digest | sub("^sha256:"; "")' \
+            "$RUNNER_TEMP/artifact.json")
+          printf '%s  %s\n' \
+            "$artifact_digest" \
+            "$RUNNER_TEMP/engine-artifact.zip" \
+            | sha256sum --check
           mkdir "$RUNNER_TEMP/engine-artifact"
           unzip -q "$RUNNER_TEMP/engine-artifact.zip" -d "$RUNNER_TEMP/engine-artifact"
           find "$RUNNER_TEMP/engine-artifact" -maxdepth 1 -type f -printf '%f %s\n' | sort
@@ -145,16 +216,11 @@ jobs:
             "$artifact/libflutter_linux_gtk4.so.sha256" \
             "$artifact/engine-metadata.json" \
             "$artifact/gtk4-engine-tests.log" \
-            --draft \
             --latest=false \
             --notes-file "$RUNNER_TEMP/release-notes.md" \
             --repo "$GITHUB_REPOSITORY" \
             --target "$GITHUB_SHA" \
             --title "Flutter GTK4 engine $FLUTTER_SDK_REVISION"
-          gh release edit "$RELEASE_TAG" \
-            --draft=false \
-            --latest=false \
-            --repo "$GITHUB_REPOSITORY"
 
       - name: Verify published release assets
         shell: bash
