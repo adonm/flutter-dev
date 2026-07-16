@@ -21,7 +21,8 @@ concurrency:
 
 env:
   FLUTTER_SDK_REVISION: 00fee9824a795ee9b5794e0a0e2bc5975e54dba8
-  ENGINE_CONTENT_HASH: 469f2b34de41cab5f677ba84d6e9099c0e682d1e
+  ENGINE_BUILD_CONTENT_HASH: 62b1a2404558a3078914891adf75668cffd8436b
+  PRECACHE_ENGINE_CONTENT_HASH: 469f2b34de41cab5f677ba84d6e9099c0e682d1e
   DART_REVISION: d402ff7c9c8442d64aa8148609480aa0e04a24fd
   DEPOT_TOOLS_REVISION: 9073d17d5650ede601bc1f59c822973d2c25b86a
   RELEASE_TAG: flutter-engine-gtk4-00fee9824a795ee9b5794e0a0e2bc5975e54dba8
@@ -169,7 +170,7 @@ jobs:
               "library_sha256": os.environ["EXPECTED_SHA256"],
               "library_size": library.stat().st_size,
               "flutter_sdk_revision": os.environ["FLUTTER_SDK_REVISION"],
-              "engine_content_hash": os.environ["ENGINE_CONTENT_HASH"],
+              "engine_content_hash": os.environ["ENGINE_BUILD_CONTENT_HASH"],
               "dart_revision": os.environ["DART_REVISION"],
               "depot_tools_revision": os.environ["DEPOT_TOOLS_REVISION"],
               "gn_target": "flutter/shell/platform/linux:flutter_gtk",
@@ -202,6 +203,8 @@ jobs:
           Pinned Linux x64 release Flutter engine with GTK4 embedding support.
 
           - Flutter SDK revision: \`$FLUTTER_SDK_REVISION\`
+          - Engine build content hash: \`$ENGINE_BUILD_CONTENT_HASH\`
+          - Official precache content hash: \`$PRECACHE_ENGINE_CONTENT_HASH\`
           - Library SHA-256: \`$EXPECTED_SHA256\`
           - Source Actions artifact ID: \`$SOURCE_ARTIFACT_ID\`
           - GTK4 engine tests: 620 passed
