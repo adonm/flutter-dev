@@ -57,17 +57,15 @@ branches. App consumption is isolated in draft downstream overlays:
 
 | App | Overlay | Review |
 |---|---|---|
-| Zuko | [`vendor/zuko/gtk4@e6ee7da`](https://github.com/adonm/zuko/commit/e6ee7daa84962cfdf84389c95e03087e276d086d) | [adonm/zuko#2](https://github.com/adonm/zuko/pull/2) |
-| Vixen | [`vendor/vixen/gtk4-r7@f871836`](https://github.com/adonm/vixen/commit/f871836b1aa1eb07c2083bbb209206b602454202) | [adonm/vixen#1](https://github.com/adonm/vixen/pull/1) |
+| Zuko | [`vendor/zuko/gtk4@516ae97`](https://github.com/adonm/zuko/commit/516ae9754c0247d8c8dcf2f67afb1418b0ceaeb4) | [adonm/zuko#2](https://github.com/adonm/zuko/pull/2) |
+| Vixen | [`vendor/vixen/gtk4-r7@e6d1395`](https://github.com/adonm/vixen/commit/e6d139549c916772b84fa43c6968cecba451a28b) | [adonm/vixen#1](https://github.com/adonm/vixen/pull/1) |
 
-Both overlays resolve the exact dependency pins recorded here and pass their
-Flutter analysis/test suites with `sdk/flutter/bin/flutter`. Their native GTK4
-release bundles also build, package, and launch with an engine built locally
-from the pinned `sdk/flutter` source; the package gates reject GTK3 linkage and
-the extracted archives report Impeller under a headless compositor. The public
-engine precache still contains only the GTK3 Linux embedder artifact, so keep
-the app PRs draft until the matching GTK4 engine artifact is published for
-ordinary CI builds.
+Both overlays resolve the exact dependency pins recorded here. Their GTK4 CI
+jobs clone the pinned Flutter framework, populate its normal Linux precache,
+verify and install the matching immutable GTK4 engine asset, and build without
+local-engine flags. The package gates reject GTK3 linkage, debug sections, and
+JIT artifacts; the extracted archives must report Impeller under a headless
+compositor.
 
 ### CI-built Linux GTK4 engine
 
@@ -85,6 +83,15 @@ revalidates the artifact, and creates a checksummed GitHub Release whose tag and
 assets become immutable when the draft is published. Downstream installers pin
 the release tag, SDK revision, engine content hash, and library SHA-256 before
 atomically adding the GTK4 library to Flutter's normal Linux release cache.
+
+Published engine:
+
+- Release: [`flutter-engine-gtk4-00fee9824a79…`](https://github.com/adonm/flutter-dev/releases/tag/flutter-engine-gtk4-00fee9824a795ee9b5794e0a0e2bc5975e54dba8)
+- SDK revision: `00fee9824a795ee9b5794e0a0e2bc5975e54dba8`
+- Engine build content hash: `62b1a2404558a3078914891adf75668cffd8436b`
+- Official precache content hash: `469f2b34de41cab5f677ba84d6e9099c0e682d1e`
+- Library SHA-256: `bd80913e83fa9fac66bca3c90a020bc624827c610f3fcff7971455b4f858f701`
+- Build: [GitHub Actions run 29469068620](https://github.com/adonm/flutter-dev/actions/runs/29469068620)
 
 ## Parent commands
 
