@@ -82,6 +82,7 @@ jobs:
         run: |
           set -euxo pipefail
           cp engine/scripts/standard.gclient .gclient
+          printf '\n' >> .gclient
           cat >> .gclient <<'EOF'
           solutions[0]["custom_vars"] = {
             "download_android_deps": False,
