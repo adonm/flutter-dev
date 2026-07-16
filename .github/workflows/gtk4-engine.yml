@@ -81,15 +81,23 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          cp engine/scripts/standard.gclient .gclient
-          printf '\n' >> .gclient
-          cat >> .gclient <<'EOF'
-          solutions[0]["custom_vars"] = {
-            "download_android_deps": False,
-            "download_fuchsia_deps": False,
-            "download_jdk": False,
-            "use_rbe": False,
-          }
+          cat > .gclient <<'EOF'
+          solutions = [
+            {
+              "custom_deps": {},
+              "custom_vars": {
+                "download_android_deps": False,
+                "download_fuchsia_deps": False,
+                "download_jdk": False,
+                "use_rbe": False,
+              },
+              "deps_file": "DEPS",
+              "managed": False,
+              "name": ".",
+              "safesync_url": "",
+              "url": "https://github.com/flutter/flutter.git",
+            },
+          ]
           EOF
           gclient sync --no-history
           test "$(git -C engine/src/flutter rev-parse HEAD)" = "$FLUTTER_SDK_REVISION"
