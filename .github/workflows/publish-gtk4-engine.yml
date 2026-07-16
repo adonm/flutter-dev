@@ -122,8 +122,6 @@ jobs:
         run: |
           set -euxo pipefail
           test "$GITHUB_REF" = refs/heads/main
-          gh api "repos/$GITHUB_REPOSITORY/immutable-releases" \
-            --jq '.enabled' | grep -Fx true
           if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             echo "Release already exists: $RELEASE_TAG" >&2
             exit 1
