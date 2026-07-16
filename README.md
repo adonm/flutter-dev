@@ -57,7 +57,7 @@ Vixen consumption remains isolated in a draft downstream overlay:
 
 | App | Target | Review |
 |---|---|---|
-| Zuko | [`v0.10.8@ce79d47`](https://github.com/adonm/zuko/commit/ce79d47ed0eec6a09e669a968f9d9f817e516ed9) | [merged adonm/zuko#2](https://github.com/adonm/zuko/pull/2) |
+| Zuko | [`v0.10.8@c56aed0`](https://github.com/adonm/zuko/commit/c56aed0a42db8fee1be2cfb367af6d56c16b4bee) | [merged adonm/zuko#2](https://github.com/adonm/zuko/pull/2) |
 | Vixen | [`vendor/vixen/gtk4-r7@91311ea`](https://github.com/adonm/vixen/commit/91311ea0dfcb2274129b53b4d2e78a07c16517fe) | [adonm/vixen#1](https://github.com/adonm/vixen/pull/1) |
 
 Both targets resolve the exact dependency pins recorded here. Their GTK4 CI

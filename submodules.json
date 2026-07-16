@@ -7,7 +7,7 @@
       "origin": "https://github.com/adonm/zuko.git",
       "upstream": null,
       "branch": "main",
-      "commit": "ce79d47ed0eec6a09e669a968f9d9f817e516ed9",
+      "commit": "c56aed0a42db8fee1be2cfb367af6d56c16b4bee",
       "purpose": "Private remote shell application and clients"
     },
     {
