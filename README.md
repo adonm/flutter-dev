@@ -57,15 +57,17 @@ branches. App consumption is isolated in draft downstream overlays:
 
 | App | Overlay | Review |
 |---|---|---|
-| Zuko | [`vendor/zuko/gtk4@f91b18e`](https://github.com/adonm/zuko/commit/f91b18e937f688b4cdb32f55e48e167acf009cb7) | [adonm/zuko#2](https://github.com/adonm/zuko/pull/2) |
-| Vixen | [`vendor/vixen/gtk4-r7@2316e56`](https://github.com/adonm/vixen/commit/2316e5699b48b620377f5e0ccd514fb81e638494) | [adonm/vixen#1](https://github.com/adonm/vixen/pull/1) |
+| Zuko | [`vendor/zuko/gtk4@e6ee7da`](https://github.com/adonm/zuko/commit/e6ee7daa84962cfdf84389c95e03087e276d086d) | [adonm/zuko#2](https://github.com/adonm/zuko/pull/2) |
+| Vixen | [`vendor/vixen/gtk4-r7@f871836`](https://github.com/adonm/vixen/commit/f871836b1aa1eb07c2083bbb209206b602454202) | [adonm/vixen#1](https://github.com/adonm/vixen/pull/1) |
 
 Both overlays resolve the exact dependency pins recorded here and pass their
-Flutter analysis/test suites with `sdk/flutter/bin/flutter`. Native GTK4 builds
-remain gated on a matching `libflutter_linux_gtk4.so`: the pinned framework and
-tooling support the GTK4 variant, but the public engine precache currently
-contains only the GTK3 Linux embedder artifact. Keep the app PRs draft until
-that engine artifact is built or supplied and the native bundles pass.
+Flutter analysis/test suites with `sdk/flutter/bin/flutter`. Their native GTK4
+release bundles also build, package, and launch with an engine built locally
+from the pinned `sdk/flutter` source; the package gates reject GTK3 linkage and
+the extracted archives report Impeller under a headless compositor. The public
+engine precache still contains only the GTK3 Linux embedder artifact, so keep
+the app PRs draft until the matching GTK4 engine artifact is published for
+ordinary CI builds.
 
 ## Parent commands
 

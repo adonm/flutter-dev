@@ -16,7 +16,7 @@
       "origin": "https://github.com/adonm/vixen.git",
       "upstream": null,
       "branch": "main",
-      "commit": "ed54097bdb99e1b29ded1875f14dca0d07f1aac1",
+      "commit": "e224bf6126ec8cfb2626c83a44790afc16b8ad2c",
       "purpose": "Flutter-hosted browser application and renderer"
     },
     {
