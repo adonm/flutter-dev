@@ -72,6 +72,12 @@ PLATFORMS: dict[str, dict[str, object]] = {
         "extension": "zip",
     },
 }
+PUBLISHED_SHA256 = {
+    "linux-x64": "b6e95c97348bebd1f129db1f1cbfb7a4a8f6481839ebe80d3eb746e102336bb9",
+    "macos-arm64": "7752c1f52abebeaccd4d3c3d8201cd7b0208282636ae58ef5f1a958ca610358a",
+    "macos-x64": "85b9ffaa0316cf84852bd1055514759270e97939a618a79bac3d6037182f0adf",
+    "windows-x64": "581f30161c555a5eab288de2b218dec501ac5e71f316b2d36fbb53f5322599ce",
+}
 
 
 def run(
@@ -567,6 +573,25 @@ def check_config(root: pathlib.Path) -> None:
         )
         if revision != FLUTTER_SDK_REVISION:
             raise SystemExit("checked-out Flutter SDK does not match artifact revision")
+    with (root / "mise.toml").open("rb") as source:
+        mise = tomllib.load(source)
+    flutter_tool = mise.get("tools", {}).get("http:flutter", {})
+    expected_mise = {
+        platform_name: {
+            "url": f"{RELEASE_BASE_URL}/{expected_asset(platform_name)}",
+            "checksum": f"sha256:{PUBLISHED_SHA256[platform_name]}",
+        }
+        for platform_name in PLATFORMS
+    }
+    if (
+        flutter_tool.get("version") != FLUTTER_FRAMEWORK_VERSION
+        or flutter_tool.get("platforms") != expected_mise
+    ):
+        raise SystemExit("parent Mise configuration does not match published SDK bytes")
+    if mise.get("env", {}).get("FLUTTER_PREBUILT_ENGINE_VERSION") != (
+        PRECACHE_ENGINE_CONTENT_HASH
+    ):
+        raise SystemExit("parent Mise configuration does not select the SDK cache hash")
     print(f"Flutter SDK artifact contract: {FLUTTER_SDK_REVISION}")
 
 

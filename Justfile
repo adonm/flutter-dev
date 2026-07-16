@@ -64,8 +64,8 @@ check-apps: check-zuko check-vixen
 
 [group('dependencies')]
 check-libghostty:
-    cd packages/libghostty && "{{ justfile_directory() }}/sdk/flutter/bin/flutter" pub get --enforce-lockfile
-    cd packages/libghostty && "{{ justfile_directory() }}/sdk/flutter/bin/dart" run melos run check
+    cd packages/libghostty && mise exec -- flutter pub get --enforce-lockfile
+    cd packages/libghostty && mise exec -- dart run melos run check
 
 [group('quality')]
 check-maintained: check check-remotes check-apps check-libghostty

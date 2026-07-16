@@ -15,7 +15,7 @@ requests. The parent records one reproducible combination of exact commits.
 git clone --recurse-submodules https://github.com/adonm/flutter-dev.git
 cd flutter-dev
 mise trust       # after reviewing mise.toml
-mise install
+mise install      # includes the immutable host Flutter/Dart SDK archive
 just check
 ```
 
@@ -104,6 +104,13 @@ the host's reviewed precache set. Linux additionally contains the immutable
 GTK4 engine above. The aggregate artifact includes per-archive SHA-256 files,
 `flutter-sdk-manifest.json`, and a generated `flutter-sdk.mise.toml` platform
 table for Mise's `http:flutter` backend.
+
+Published SDK:
+
+- Release: [`flutter-sdk-328b829d35a3…`](https://github.com/adonm/flutter-dev/releases/tag/flutter-sdk-328b829d35a3a5d7a00e0c2f0e97eb8cc0d97188)
+- Build: [GitHub Actions run 29506270482](https://github.com/adonm/flutter-dev/actions/runs/29506270482)
+- Framework: `3.47.0-1.0.pre-160` at `328b829d35a3a5d7a00e0c2f0e97eb8cc0d97188`
+- Dart: `3.14.0-28.0.dev`
 
 [`Publish pinned cross-platform Flutter SDK`](.github/workflows/publish-flutter-sdk.yml)
 accepts only the aggregate artifact from that successful workflow, revalidates
