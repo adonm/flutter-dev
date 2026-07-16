@@ -57,8 +57,8 @@ branches. App consumption is isolated in draft downstream overlays:
 
 | App | Overlay | Review |
 |---|---|---|
-| Zuko | [`vendor/zuko/gtk4@516ae97`](https://github.com/adonm/zuko/commit/516ae9754c0247d8c8dcf2f67afb1418b0ceaeb4) | [adonm/zuko#2](https://github.com/adonm/zuko/pull/2) |
-| Vixen | [`vendor/vixen/gtk4-r7@e6d1395`](https://github.com/adonm/vixen/commit/e6d139549c916772b84fa43c6968cecba451a28b) | [adonm/vixen#1](https://github.com/adonm/vixen/pull/1) |
+| Zuko | [`vendor/zuko/gtk4@e643dca`](https://github.com/adonm/zuko/commit/e643dca2cb517d49cf304e644c2d57cc67dec87b) | [adonm/zuko#2](https://github.com/adonm/zuko/pull/2) |
+| Vixen | [`vendor/vixen/gtk4-r7@063931e`](https://github.com/adonm/vixen/commit/063931e1a4cc7480bba96b83c55c826e8dfba1d4) | [adonm/vixen#1](https://github.com/adonm/vixen/pull/1) |
 
 Both overlays resolve the exact dependency pins recorded here. Their GTK4 CI
 jobs clone the pinned Flutter framework, populate its normal Linux precache,
@@ -86,12 +86,13 @@ atomically adding the GTK4 library to Flutter's normal Linux release cache.
 
 Published engine:
 
-- Release: [`flutter-engine-gtk4-00fee9824a79…`](https://github.com/adonm/flutter-dev/releases/tag/flutter-engine-gtk4-00fee9824a795ee9b5794e0a0e2bc5975e54dba8)
-- SDK revision: `00fee9824a795ee9b5794e0a0e2bc5975e54dba8`
-- Engine build content hash: `62b1a2404558a3078914891adf75668cffd8436b`
+- Release: [`flutter-engine-gtk4-328b829d35a3…`](https://github.com/adonm/flutter-dev/releases/tag/flutter-engine-gtk4-328b829d35a3a5d7a00e0c2f0e97eb8cc0d97188)
+- SDK revision: `328b829d35a3a5d7a00e0c2f0e97eb8cc0d97188`
+- Engine build content hash: `4b9d582709c5336c84a698251b542d65ed790a9d`
 - Official precache content hash: `469f2b34de41cab5f677ba84d6e9099c0e682d1e`
-- Library SHA-256: `bd80913e83fa9fac66bca3c90a020bc624827c610f3fcff7971455b4f858f701`
-- Build: [GitHub Actions run 29469068620](https://github.com/adonm/flutter-dev/actions/runs/29469068620)
+- Library SHA-256: `61cafba174d24e2c4f73e416cb98c0b33a0ca751b99bf0d9c42cf2c4f1f44add`
+- Build: [GitHub Actions run 29490464079](https://github.com/adonm/flutter-dev/actions/runs/29490464079)
+- Publication: [GitHub Actions run 29492073133](https://github.com/adonm/flutter-dev/actions/runs/29492073133)
 
 ## Parent commands
 
