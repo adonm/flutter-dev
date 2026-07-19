@@ -3,6 +3,7 @@
 actionlint = "1.7.12"
 just = "1.55.1"
 python = "3.14.3"
+zig = "0.15.2"
 
 [tools."http:flutter"]
 version = "3.47.0-1.0.pre-160"

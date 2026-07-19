@@ -11,12 +11,16 @@ requests. The parent records one reproducible combination of exact commits.
 
 ## Clone and bootstrap
 
+The supported Linux development baseline is an x86_64 Ubuntu 24.04 Distrobox.
+Clone the workspace on the host, then create and provision the box using
+[`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md):
+
 ```sh
 git clone --recurse-submodules https://github.com/adonm/flutter-dev.git
 cd flutter-dev
-mise trust       # after reviewing mise.toml
-mise install      # includes the immutable host Flutter/Dart SDK archive
-just check
+just devbox-setup  # first run only
+just devbox-enter  # daily development shell
+just check         # now inside Ubuntu with Mise active
 ```
 
 For an existing non-recursive checkout:
@@ -30,6 +34,10 @@ just bootstrap
 Normal bootstrap always checks out the exact gitlinks committed by this
 repository. Do not use `git submodule update --remote` for builds or CI: branch
 names are maintenance metadata, not floating dependencies.
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the contribution loop and
+[`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) for first-time setup, common tasks,
+and troubleshooting.
 
 ## Repository map
 
@@ -51,22 +59,19 @@ The parent gitlinks remain Git's authoritative checkout pins.
 
 ## GTK4 validation targets
 
-The parent currently pins the GTK4 Flutter framework and plugin validation
-commits. Zuko's immutable `v0.10.8` release points to `ec0fc66`; the parent
-pins the follow-up `7056e6a` commit containing its Appetize recovery fix.
-Vixen consumption remains isolated in a draft downstream overlay:
+The parent pins the GTK4 Flutter framework, engine, plugin forks, and current
+application release commits as one reviewed combination:
 
-| App | Target | Review |
-|---|---|---|
-| Zuko | [`v0.10.8@ec0fc66`](https://github.com/adonm/zuko/commit/ec0fc66ed351c443c7cc733d2758ad184526e6f5); parent pin [`7056e6a`](https://github.com/adonm/zuko/commit/7056e6aa38f682aad0838b78d5be8d88a301d467) | [merged adonm/zuko#2](https://github.com/adonm/zuko/pull/2) |
-| Vixen | [`vendor/vixen/gtk4-r7@91311ea`](https://github.com/adonm/vixen/commit/91311ea0dfcb2274129b53b4d2e78a07c16517fe) | [adonm/vixen#1](https://github.com/adonm/vixen/pull/1) |
+| App | Release commit |
+|---|---|
+| Zuko 0.10.13 | [`7e1092a`](https://github.com/adonm/zuko/commit/7e1092a661561486f8f23837d4b6c761878a6e9b) |
+| Vixen 0.1.7 | [`24d9ed5`](https://github.com/adonm/vixen/commit/24d9ed5bf68294ac2ca3c373c957c2cd36484986) |
 
-Both targets resolve the exact dependency pins recorded here. Their GTK4 CI
-jobs clone the pinned Flutter framework, populate its normal Linux precache,
-verify and install the matching immutable GTK4 engine asset, and build without
-local-engine flags. The package gates reject GTK3 linkage, debug sections, and
-JIT artifacts; the extracted archives must report Impeller under a headless
-compositor.
+Both applications install the checksum-pinned Flutter SDK through Mise and
+build without local-engine flags. Zuko additionally resolves its GTK4 desktop
+plugins and libghostty/flterm integration to the exact public fork commits
+recorded here. Package gates reject GTK3 linkage, debug sections, and JIT
+artifacts; extracted archives must report Impeller under a headless compositor.
 
 ### CI-built Linux GTK4 engine
 

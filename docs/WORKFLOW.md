@@ -6,6 +6,13 @@ document, **vendoring** means pinning a reviewed commit from a maintained fork.
 It does not mean copying dependency files into either application or squashing
 independent project histories into this repository.
 
+Linux integration work uses the version-pinned Ubuntu 24.04 Distrobox in
+[`DEVELOPMENT.md`](DEVELOPMENT.md). Run child and composed-build evidence from
+that environment unless a platform gate requires native macOS or Windows, or a
+recipe explicitly enters its pinned release builder. Fedora and Ubuntu 26.04
+are additional compatibility checks, not substitutes for the current Linux
+baseline.
+
 ## Ownership boundaries
 
 - `apps/zuko` and `apps/vixen` are first-party products. Product behavior and
