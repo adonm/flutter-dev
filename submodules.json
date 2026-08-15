@@ -25,7 +25,7 @@
       "origin": "https://github.com/adonm/libghostty.git",
       "upstream": "https://github.com/elias8/libghostty.git",
       "branch": "chore/melos-workspace",
-      "commit": "1c214e622b4b4543a533c848a6d8a746cdf47900",
+      "commit": "6159f54bafe4cae647d1cb9a9cb72ecc25b1562c",
       "purpose": "Ghostty terminal bindings and Flutter terminal widget"
     }
   ]
