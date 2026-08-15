@@ -25,7 +25,7 @@
       "origin": "https://github.com/adonm/flutter.git",
       "upstream": "https://github.com/flutter/flutter.git",
       "branch": "issue-94804-gtk4-linux",
-      "commit": "328b829d35a3a5d7a00e0c2f0e97eb8cc0d97188",
+      "commit": "9351f0f780c7936af1e9b5fef0d21e8b01ee7cb6",
       "purpose": "Flutter framework and engine GTK4 integration"
     },
     {

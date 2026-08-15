@@ -16,8 +16,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  FLUTTER_SDK_REVISION: 328b829d35a3a5d7a00e0c2f0e97eb8cc0d97188
-  RELEASE_TAG: flutter-sdk-328b829d35a3a5d7a00e0c2f0e97eb8cc0d97188
+  FLUTTER_SDK_REVISION: 9351f0f780c7936af1e9b5fef0d21e8b01ee7cb6
+  RELEASE_TAG: flutter-sdk-9351f0f780c7936af1e9b5fef0d21e8b01ee7cb6
 
 jobs:
   publish:
