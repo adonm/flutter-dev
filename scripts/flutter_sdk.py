@@ -250,7 +250,7 @@ def install_gtk4_engine(sdk: pathlib.Path) -> None:
             "engine_content_hash": ENGINE_BUILD_CONTENT_HASH,
             "dart_revision": DART_REVISION,
             "runtime_mode": "release",
-            "tests": 620,
+            "tests": 623,
         }
         actual = {key: metadata.get(key) for key in expected}
         if actual != expected:
