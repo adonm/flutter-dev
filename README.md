@@ -61,7 +61,7 @@ The parent gitlinks remain Git's authoritative checkout pins.
 
 | App | Release commit |
 |---|---|
-| Zuko 0.10.14 | [`ea1f40a`](https://github.com/adonm/zuko/commit/ea1f40a) |
+| Zuko 0.10.15 | [`6268c84`](https://github.com/adonm/zuko/commit/6268c84) |
 | Vixen 0.1.7 | [`3b2e460`](https://github.com/adonm/vixen/commit/3b2e46039ee661e4cc44b7636114ad9fcd5d4f2d) |
 
 Zuko resolves libghostty/flterm to the exact public fork commits recorded here;
