@@ -64,7 +64,7 @@ application release commits as one reviewed combination:
 
 | App | Release commit |
 |---|---|
-| Zuko 0.10.13 | [`7e1092a`](https://github.com/adonm/zuko/commit/7e1092a661561486f8f23837d4b6c761878a6e9b) |
+| Zuko 0.10.13 | [`a535ae0`](https://github.com/adonm/zuko/commit/a535ae09c356816353227ae8975f4a7464a8ec67) |
 | Vixen 0.1.7 | [`24d9ed5`](https://github.com/adonm/vixen/commit/24d9ed5bf68294ac2ca3c373c957c2cd36484986) |
 
 Both applications install the checksum-pinned Flutter SDK through Mise and
@@ -92,13 +92,13 @@ atomically adding the GTK4 library to Flutter's normal Linux release cache.
 
 Published engine:
 
-- Release: [`flutter-engine-gtk4-328b829d35a3…`](https://github.com/adonm/flutter-dev/releases/tag/flutter-engine-gtk4-328b829d35a3a5d7a00e0c2f0e97eb8cc0d97188)
-- SDK revision: `328b829d35a3a5d7a00e0c2f0e97eb8cc0d97188`
-- Engine build content hash: `4b9d582709c5336c84a698251b542d65ed790a9d`
-- Official precache content hash: `469f2b34de41cab5f677ba84d6e9099c0e682d1e`
-- Library SHA-256: `61cafba174d24e2c4f73e416cb98c0b33a0ca751b99bf0d9c42cf2c4f1f44add`
-- Build: [GitHub Actions run 29490464079](https://github.com/adonm/flutter-dev/actions/runs/29490464079)
-- Publication: [GitHub Actions run 29492073133](https://github.com/adonm/flutter-dev/actions/runs/29492073133)
+- Release: [`flutter-engine-gtk4-9351f0f780c…`](https://github.com/adonm/flutter-dev/releases/tag/flutter-engine-gtk4-9351f0f780c7936af1e9b5fef0d21e8b01ee7cb6)
+- SDK revision: `9351f0f780c7936af1e9b5fef0d21e8b01ee7cb6`
+- Engine build content hash: `e02e791b89b09022cb5d56ebc08600c2b9233ae9`
+- Official precache content hash: `e723cb127ef0d4153cc41a0b390c837b47e5f573`
+- Library SHA-256: `8afa69aebce8158f3dc4eef184d4bafb10e0de1e216f9d2678d37d47508a841a`
+- Build: [GitHub Actions run 31864684343](https://github.com/adonm/flutter-dev/actions/runs/31864684343)
+- Publication: [GitHub Actions run 31866380132](https://github.com/adonm/flutter-dev/actions/runs/31866380132)
 
 ### Mise-compatible host SDK archives
 
@@ -113,10 +113,10 @@ table for Mise's `http:flutter` backend.
 
 Published SDK:
 
-- Release: [`flutter-sdk-328b829d35a3…`](https://github.com/adonm/flutter-dev/releases/tag/flutter-sdk-328b829d35a3a5d7a00e0c2f0e97eb8cc0d97188)
-- Build: [GitHub Actions run 29506270482](https://github.com/adonm/flutter-dev/actions/runs/29506270482)
-- Framework: `3.47.0-1.0.pre-160` at `328b829d35a3a5d7a00e0c2f0e97eb8cc0d97188`
-- Dart: `3.14.0-28.0.dev`
+- Release: [`flutter-sdk-9351f0f780c…`](https://github.com/adonm/flutter-dev/releases/tag/flutter-sdk-9351f0f780c7936af1e9b5fef0d21e8b01ee7cb6)
+- Build: [GitHub Actions run 31867127710](https://github.com/adonm/flutter-dev/actions/runs/31867127710)
+- Framework: `3.47.0-1.0.pre-672` at `9351f0f780c7936af1e9b5fef0d21e8b01ee7cb6`
+- Dart: `3.14.0-134.0.dev`
 
 [`Publish pinned cross-platform Flutter SDK`](.github/workflows/publish-flutter-sdk.yml)
 accepts only the aggregate artifact from that successful workflow, revalidates

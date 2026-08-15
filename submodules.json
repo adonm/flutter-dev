@@ -7,7 +7,7 @@
       "origin": "https://github.com/adonm/zuko.git",
       "upstream": null,
       "branch": "main",
-      "commit": "33e1eb068693ddb00d2122a1c184ad7676143586",
+      "commit": "a535ae09c356816353227ae8975f4a7464a8ec67",
       "purpose": "Private remote shell application and clients"
     },
     {
@@ -43,7 +43,7 @@
       "origin": "https://github.com/adonm/libghostty.git",
       "upstream": "https://github.com/elias8/libghostty.git",
       "branch": "chore/melos-workspace",
-      "commit": "33e98c6257b7dabfb416d1a225413c2713736894",
+      "commit": "1c214e622b4b4543a533c848a6d8a746cdf47900",
       "purpose": "Ghostty terminal bindings and Flutter terminal widget"
     },
     {
