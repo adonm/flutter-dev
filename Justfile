@@ -3,7 +3,7 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 
 DEVBOX_NAME := env_var_or_default("DEVBOX_NAME", "flutter-dev")
 DEVBOX_IMAGE := env_var_or_default("DEVBOX_IMAGE", "quay.io/toolbx/ubuntu-toolbox:24.04")
-DEVBOX_PACKAGES := "at-spi2-core binutils build-essential cage clang cmake curl dbus-daemon flatpak flatpak-builder git gir1.2-atspi-2.0 ibus ibus-gtk4 ibus-mozc jq libegl-dev libgl-dev libgtk-4-dev libsecret-1-dev libwayland-dev mesa-vulkan-drivers ninja-build openjdk-17-jdk-headless ostree pkg-config python3 python3-gi ripgrep shellcheck unzip wayland-protocols wtype xz-utils"
+DEVBOX_PACKAGES := "at-spi2-core binutils build-essential cage clang cmake curl dbus-daemon flatpak flatpak-builder git gir1.2-atspi-2.0 ibus ibus-gtk4 ibus-mozc jq libegl-dev libgl-dev libgtk-3-dev libsecret-1-dev libwayland-dev mesa-vulkan-drivers ninja-build openjdk-17-jdk-headless ostree pkg-config python3 python3-gi ripgrep shellcheck unzip wayland-protocols wtype xz-utils"
 
 default:
     @just --list --list-heading $'flutter-dev recipes:\n'

@@ -43,15 +43,15 @@ and troubleshooting.
 
 | Path | Role |
 |---|---|
-| `apps/zuko` | Private remote shell application and Flutter clients |
-| `apps/vixen` | Flutter-hosted browser application and renderer |
-| `sdk/flutter` | Flutter framework/engine fork for GTK4 integration |
-| `sdk/flutter-packages` | Flutter package fork, currently `url_launcher` |
+| `apps/zuko` | Private remote shell application and Flutter clients (official beta, GTK3) |
+| `apps/vixen` | Flutter-hosted browser application and renderer (official beta) |
+| `sdk/flutter` | Flutter framework fork (GTK4 integration, retained for reference) |
+| `sdk/flutter-packages` | Flutter package fork, currently `url_launcher` (retained) |
 | `packages/libghostty` | Ghostty terminal bindings and `flterm` widget |
-| `plugins/gtk.dart` | GTK bindings |
-| `plugins/screen_retriever` | Screen discovery plugin |
-| `plugins/window_manager` | Desktop window management plugin |
-| `plugins/yaru_window.dart` | Yaru window integration |
+| `plugins/gtk.dart` | GTK bindings (GTK4 work retained for reference) |
+| `plugins/screen_retriever` | Screen discovery plugin (retained) |
+| `plugins/window_manager` | Desktop window management plugin (retained) |
+| `plugins/yaru_window.dart` | Yaru window integration (retained) |
 
 `.gitmodules` defines clone URLs and maintenance branches. `submodules.json`
 records the reviewed origins, canonical upstreams, and exact expected commits.
@@ -59,19 +59,20 @@ The parent gitlinks remain Git's authoritative checkout pins.
 
 ## GTK4 validation targets
 
-The parent pins the GTK4 Flutter framework, engine, plugin forks, and current
-application release commits as one reviewed combination:
+Zuko now consumes the official Flutter beta (GTK3 embedder with Impeller) and
+stock pub.dev plugins; the fork SDK, engine, and plugin pins below are
+retained as reviewed history for the GTK4 work and any future re-adoption:
 
 | App | Release commit |
 |---|---|
-| Zuko 0.10.13 | [`a535ae0`](https://github.com/adonm/zuko/commit/a535ae09c356816353227ae8975f4a7464a8ec67) |
+| Zuko 0.10.13 | [`0cc8490`](https://github.com/adonm/zuko/commit/0cc8490d7d82) |
 | Vixen 0.1.7 | [`24d9ed5`](https://github.com/adonm/vixen/commit/24d9ed5bf68294ac2ca3c373c957c2cd36484986) |
 
-Both applications install the checksum-pinned Flutter SDK through Mise and
-build without local-engine flags. Zuko additionally resolves its GTK4 desktop
-plugins and libghostty/flterm integration to the exact public fork commits
-recorded here. Package gates reject GTK3 linkage, debug sections, and JIT
-artifacts; extracted archives must report Impeller under a headless compositor.
+Vixen installs the official Google beta archive, and Zuko installs the same
+official beta (3.48.0-0.1.pre) through Mise. Zuko resolves libghostty/flterm
+to the exact public fork commits recorded here. Package gates reject debug
+sections and JIT artifacts; extracted archives must report Impeller under a
+headless compositor.
 
 ### CI-built Linux GTK4 engine
 
