@@ -144,7 +144,7 @@ jobs:
           LIBGL_ALWAYS_SOFTWARE=1 \
             cage -- "engine/src/out/$ENGINE_OUT/flutter_linux_gtk4_unittests" \
             2>&1 | tee "$RUNNER_TEMP/gtk4-engine-tests.log"
-          grep -F '[  PASSED  ] 620 tests.' "$RUNNER_TEMP/gtk4-engine-tests.log"
+          grep -F '[  PASSED  ] 623 tests.' "$RUNNER_TEMP/gtk4-engine-tests.log"
 
       - name: Validate and stage engine library
         working-directory: sdk/flutter
@@ -208,7 +208,7 @@ jobs:
               "gn_target": "flutter/shell/platform/linux:flutter_gtk",
               "gn_out": os.environ["ENGINE_OUT"],
               "runtime_mode": "release",
-              "tests": 620,
+              "tests": 623,
           }
           if metadata["flutter_sdk_revision"] != os.environ["FLUTTER_SDK_REVISION"]:
               raise SystemExit("Flutter SDK revision changed during the build")
