@@ -17,8 +17,10 @@ baseline.
 
 - `apps/zuko` and `apps/vixen` are first-party products. Product behavior and
   app-specific integration belong in those repositories.
-- `sdk/`, `packages/`, and `plugins/` are fork worktrees. Changes intended for a
+- `packages/libghostty` is a fork worktree. Changes intended for the
   canonical project must remain reviewable independently of either app.
+  The former `sdk/` and `plugins/` fork worktrees were retired when both
+  applications moved to the official Flutter beta and stock pub.dev plugins.
 - The parent repository owns only coordination: exact pins, dependency intent,
   reproducible commands, and links between integration work and child PRs.
 - A child repository's own formatter, analyzer, tests, release process, and
@@ -71,8 +73,8 @@ Use one branch for one review boundary:
 | First-party feature | `feat/<issue>-<slug>` or `fix/<issue>-<slug>` | App `main` | Zuko/Vixen product work |
 | Parent integration | `integration/<initiative>` | Parent `main` | Coordinated pin updates and documentation |
 
-Existing long-lived branches such as `issue-94804-gtk4-linux` predate this
-convention and may remain until their current upstreaming effort is complete.
+The historical `issue-94804-gtk4-linux` work on the retired Flutter fork may
+remain until its upstreaming effort (flutter/flutter#186594) is complete.
 New work should use the branch classes above.
 
 A branch named `upstream/...` must not contain app branding, unrelated
@@ -90,8 +92,8 @@ git switch -c integration/<initiative>
 
 For each affected child:
 
-1. Identify the smallest owner of the behavior: app, package/plugin, Flutter
-   package, or Flutter framework/engine.
+1. Identify the smallest owner of the behavior: app, Dart package/plugin, or
+   (rarely) the Flutter framework itself.
 2. Create an upstream PR branch directly from the canonical project's current
    default branch.
 3. Implement only that project's coherent change and run its native checks.
@@ -119,9 +121,10 @@ explicit:
   package version or an immutable fork commit/tag. During coordinated local
   development, an ignored `pubspec_overrides.yaml` may point to the sibling
   checkout when supported; never commit an absolute workstation path.
-- For Flutter framework or engine work, run the relevant compatibility build
-  with `sdk/flutter/bin/flutter`, and record that exact command. The app's
-  ordinary gate may keep its independently pinned release SDK.
+- For Flutter framework or engine work, re-add the framework fork as a
+  submodule, run the compatibility build with its `bin/flutter`, and record
+  that exact command. The app's ordinary gate keeps its independently pinned
+  official beta SDK.
 - For generated platform files, keep the generator and generated output in the
   child repository that owns them. Do not patch generated app files from the
   parent.
