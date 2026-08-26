@@ -9,4 +9,4 @@
 [submodule "packages/libghostty"]
 	path = packages/libghostty
 	url = https://github.com/adonm/libghostty.git
-	branch = chore/melos-workspace
+	branch = zuko/upstream-rebase

@@ -86,8 +86,9 @@ check-apps: check-zuko check-vixen
 
 [group('dependencies')]
 check-libghostty:
-    cd packages/libghostty && mise exec -- flutter pub get --enforce-lockfile
-    cd packages/libghostty && mise exec -- dart run melos run check
+    cd packages/libghostty && mise exec -- flutter pub get
+    cd packages/libghostty && mise exec -- dart format --set-exit-if-changed packages/flterm packages/libghostty
+    cd packages/libghostty && mise exec -- dart analyze packages/flterm packages/libghostty
 
 [group('quality')]
 check-maintained: check check-remotes check-apps check-libghostty
