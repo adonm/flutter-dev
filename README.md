@@ -9,10 +9,11 @@ This is a meta-repository, not a source-history merger. Each child repository
 keeps its own issues, releases, build system, license, and upstream pull
 requests. The parent records one reproducible combination of exact commits.
 
-Both applications install the official Flutter beta (`3.48.0-0.1.pre`) through
+Both applications install the official Flutter stable (`3.47.1`) through
 Mise and build with the stock GTK3 embedder and Impeller. The custom GTK4
 framework/engine pipeline that this workspace previously coordinated was
-retired when the applications moved to the official beta; its history is
+retired when the applications moved to the official beta, then to stable once
+Linux Impeller and the GTK3 embedder landed in stable 3.47; the history is
 summarized in [docs/WORKFLOW.md](docs/WORKFLOW.md).
 
 ## Clone and bootstrap

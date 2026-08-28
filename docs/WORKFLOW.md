@@ -20,7 +20,8 @@ baseline.
 - `packages/libghostty` is a fork worktree. Changes intended for the
   canonical project must remain reviewable independently of either app.
   The former `sdk/` and `plugins/` fork worktrees were retired when both
-  applications moved to the official Flutter beta and stock pub.dev plugins.
+  applications moved to the official Flutter SDK (beta, then stable 3.47)
+  and stock pub.dev plugins.
 - The parent repository owns only coordination: exact pins, dependency intent,
   reproducible commands, and links between integration work and child PRs.
 - A child repository's own formatter, analyzer, tests, release process, and
@@ -124,7 +125,7 @@ explicit:
 - For Flutter framework or engine work, re-add the framework fork as a
   submodule, run the compatibility build with its `bin/flutter`, and record
   that exact command. The app's ordinary gate keeps its independently pinned
-  official beta SDK.
+  official stable SDK.
 - For generated platform files, keep the generator and generated output in the
   child repository that owns them. Do not patch generated app files from the
   parent.
