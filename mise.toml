@@ -16,6 +16,3 @@ windows-x64 = { url = "https://github.com/adonm/flutter-dev/releases/download/fl
 
 [settings]
 experimental = true
-
-[env]
-FLUTTER_PREBUILT_ENGINE_VERSION = "469f2b34de41cab5f677ba84d6e9099c0e682d1e"
