@@ -18,17 +18,22 @@ summarized in [docs/WORKFLOW.md](docs/WORKFLOW.md).
 
 ## Clone and bootstrap
 
-The supported Linux development baseline is an x86_64 Ubuntu 24.04 Distrobox.
-Clone the workspace on the host, then create and provision the box using
-[`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md):
+Ubuntu 24.04 is the CI baseline; a Distrobox is not required. Clone the
+workspace on the host, install the pinned tools with Mise, and run checks
+directly (see [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md)):
 
 ```sh
 git clone --recurse-submodules https://github.com/adonm/flutter-dev.git
 cd flutter-dev
-just devbox-setup  # first run only
-just devbox-enter  # daily development shell
-just check         # now inside Ubuntu with Mise active
+mise trust && mise install
+(cd apps/zuko && mise trust && mise install)
+(cd apps/vixen && mise trust && mise install)
+eval "$(mise activate bash)"
+just check
 ```
+
+For an exact Ubuntu 24.04 replica, optionally run `just devbox-setup` once and
+`just devbox-enter` daily.
 
 For an existing non-recursive checkout:
 

@@ -1,11 +1,14 @@
 # Contributing
 
-Use the Ubuntu 24.04 development environment in
-[`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) for Linux work. On a new checkout,
-run `just devbox-setup` on the host. For normal work:
+For Linux work, install the pinned tools and each application's native package
+list per [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md); Ubuntu 24.04 is the CI
+baseline and a Distrobox is optional. For normal work:
 
 ```sh
-just devbox-enter
+mise trust && mise install
+(cd apps/zuko && mise trust && mise install)
+(cd apps/vixen && mise trust && mise install)
+eval "$(mise activate bash)"
 just status
 just check
 ```
