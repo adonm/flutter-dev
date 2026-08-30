@@ -7,7 +7,7 @@
       "origin": "https://github.com/adonm/zuko.git",
       "upstream": null,
       "branch": "main",
-      "commit": "ce174d45f1e60538f95c992876f131a9fc95e9c9",
+      "commit": "c0ed51c7bdd310fa22f3a53b8478f56518fdf4bf",
       "purpose": "Private remote shell application and clients"
     },
     {
@@ -16,7 +16,7 @@
       "origin": "https://github.com/adonm/vixen.git",
       "upstream": null,
       "branch": "main",
-      "commit": "c2257fd328218f460cbdb3312d84a13f9ab8285b",
+      "commit": "1dcc53d1aa16f00535dc7383c51b30acf5f3b8e1",
       "purpose": "Flutter-hosted browser application and renderer"
     },
     {
