@@ -16,7 +16,7 @@
       "origin": "https://github.com/adonm/vixen.git",
       "upstream": null,
       "branch": "main",
-      "commit": "d892248e9663b18887784471b2da257f749f35f4",
+      "commit": "5ae8d6152c33c19aac9d1737ce8af2c6fffdca4c",
       "purpose": "Odin-native minimal browser (rewrite in progress; Flutter tree archived in-repo under flutter/)"
     },
     {
