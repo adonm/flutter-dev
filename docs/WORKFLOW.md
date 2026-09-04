@@ -1,6 +1,6 @@
 # Application, fork, and upstream workflow
 
-This workspace lets Zuko and Vixen consume coordinated framework and plugin
+This workspace lets Zuko consume coordinated framework and plugin
 work without turning those dependencies into copied source trees. In this
 document, **vendoring** means pinning a reviewed commit from a maintained fork.
 It does not mean copying dependency files into either application or squashing
@@ -15,7 +15,7 @@ baseline.
 
 ## Ownership boundaries
 
-- `apps/zuko` and `apps/vixen` are first-party products. Product behavior and
+- `apps/zuko` is a first-party product. Product behavior and
   app-specific integration belong in those repositories.
 - `packages/libghostty` is a fork worktree. Changes intended for the
   canonical project must remain reviewable independently of either app.
@@ -71,7 +71,7 @@ Use one branch for one review boundary:
 |---|---|---|---|
 | Upstream PR | `upstream/<issue>-<slug>` | Canonical default branch | Minimal change suitable for one canonical PR |
 | Downstream overlay | `vendor/<app-or-shared>/<slug>` | Upstream PR branch or canonical commit | Necessary app integration that cannot be upstreamed |
-| First-party feature | `feat/<issue>-<slug>` or `fix/<issue>-<slug>` | App `main` | Zuko/Vixen product work |
+| First-party feature | `feat/<issue>-<slug>` or `fix/<issue>-<slug>` | App `main` | Zuko product work |
 | Parent integration | `integration/<initiative>` | Parent `main` | Coordinated pin updates and documentation |
 
 The historical `issue-94804-gtk4-linux` work on the retired Flutter fork may
@@ -83,7 +83,7 @@ refactors, generated parent files, or multiple projects' changes. A
 `vendor/...` branch must clearly identify which commits are downstream-only and
 why.
 
-## Coordinated work for Zuko and Vixen
+## Coordinated work for Zuko
 
 Start with a parent integration branch and a small component matrix:
 
@@ -100,14 +100,12 @@ For each affected child:
 3. Implement only that project's coherent change and run its native checks.
 4. Push the commit to `origin` and open a focused PR against `upstream`.
 5. If either app needs temporary glue or policy that upstream should not own,
-   add a separate `vendor/zuko/...`, `vendor/vixen/...`, or
-   `vendor/shared/...` overlay branch on top.
+   add a separate `vendor/zuko/...` or `vendor/shared/...` overlay branch on top.
 6. Pin the exact published commit with `just pin <path>`.
-7. Change each app in its own first-party branch and PR. Do not combine Zuko and
-   Vixen product changes merely because they consume the same dependency pin.
+7. Change each app in its own first-party branch and PR.
 8. Record all child branches/PRs and check results in the parent integration PR.
 
-When both apps need the same dependency behavior, produce one shared upstream
+When multiple consumers need the same dependency behavior, produce one shared upstream
 change and pin it once. Do not maintain equivalent patches independently in
 both app repositories. App-specific differences stay in the apps or in clearly
 separate overlay commits.
@@ -146,8 +144,8 @@ Before opening a canonical PR:
   have an explicit stack dependency.
 - Include the failing behavior, the ownership rationale, focused tests, and the
   exact command/output proving the fix.
-- Avoid references that require an upstream reviewer to understand Zuko,
-  Vixen, or this meta-repository unless the app is the reproduction case.
+- Avoid references that require an upstream reviewer to understand Zuko
+  or this meta-repository unless the app is the reproduction case.
 - Avoid lockfile/dependency churn not required by the fix.
 - Match the canonical repository's style, contribution guide, and branch base.
 - Link the upstream issue and identify any dependent PRs without hiding stack
@@ -161,8 +159,7 @@ list such as:
 2. flutter/packages#...         package adaptation, based on or gated by 1
 3. owner/plugin#...             plugin adaptation
 4. adonm/zuko#...               product integration
-5. adonm/vixen#...              product integration
-6. adonm/flutter-dev#...        exact integration pins
+5. adonm/flutter-dev#...        exact integration pins
 ```
 
 The parent PR is the ledger and integration proof, not a substitute for the

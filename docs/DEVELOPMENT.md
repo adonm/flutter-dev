@@ -1,9 +1,9 @@
 # Develop on Linux
 
 Ubuntu 24.04 is the CI and release baseline for this workspace; a Distrobox is
-not required. Install each application's native Linux packages and run its
-recipes directly on the host. An optional Distrobox gives Zuko and Vixen one
-predictable set of compilers, headers, desktop libraries, and test utilities
+not required. Install Zuko's native Linux packages and run its recipes
+directly on the host. An optional Distrobox gives Zuko one predictable set of
+compilers, headers, desktop libraries, and test utilities
 while retaining normal access to your checkout, editor, display, GPU, and
 devices.
 
@@ -20,8 +20,8 @@ Install these on the host:
 
 - [Mise](https://mise.jdx.dev/) for pinned project tools;
 - [Just](https://just.systems/) to run workspace recipes; and
-- the native Linux packages each application documents (Zuko:
-  `apps/zuko/docs/building-clients.md`; Vixen: `apps/vixen/README.md`).
+- the native Linux packages Zuko documents in
+  `apps/zuko/docs/building-clients.md`.
 
 Review the repository's `mise.toml` and each application Mise file before
 trusting them. For an exact CI replica, optionally install
@@ -42,19 +42,12 @@ just status
 just check
 ```
 
-Vixen is provisioned separately (see `apps/vixen/README.md`):
-
-```sh
-cd apps/vixen && just setup && just build
-```
-```
-
-Install each application's native package list before running its Linux build
+Install Zuko's native package list before running its Linux build
 or smoke recipes.
 
 The optional `just devbox-setup` creates `flutter-dev` from the versioned
 `quay.io/toolbx/ubuntu-toolbox:24.04` image, installs the shared Linux packages,
-and installs the pinned parent, Zuko, and Vixen tools. It can take a while on
+and installs the pinned parent and Zuko tools. It can take a while on
 the first run; rerunning it is safe.
 
 The prompt opened by `devbox-enter` starts in the workspace with Mise active.
@@ -89,11 +82,6 @@ just check
 cd apps/zuko
 just check
 just build-flutter-linux
-
-# Vixen (Odin rewrite)
-cd ../vixen
-just setup   # first run only: pinned Odin SDK, native libs, fonts
-just test
 cd ../..
 ```
 
@@ -109,7 +97,6 @@ Useful entry points:
 | Parent pins or workflows | `just check` | `just check-remotes` |
 | Zuko Rust or shared Flutter | `cd apps/zuko && just check` | `just preflight` |
 | Zuko Linux client | `cd apps/zuko && just build-flutter-linux` | documented `container-*` compile gate |
-| Vixen browser | `cd apps/vixen && just test` | the child repository's own gates |
 | libghostty | `just check-libghostty` | the child repository's own checks |
 
 ## What setup owns
@@ -125,14 +112,12 @@ Keep configuration in the layer that owns it:
 The shared package set is defined once as `DEVBOX_PACKAGES` in the root
 `Justfile`. Android SDK platforms, build-tools, NDK, and Android CMake versions
 remain application-owned; follow `apps/zuko/docs/building-clients.md` before an
-Android build. Vixen has no release builder; its pinned toolchains come from
-`just setup` inside `apps/vixen`.
+Android build.
 
 Use a child's bootstrap only when you need its additional one-time setup:
 
 ```sh
 (cd apps/zuko && mise bootstrap)
-(cd apps/vixen && just setup)
 ```
 
 Mise activation follows directory changes, so the correct child tools become

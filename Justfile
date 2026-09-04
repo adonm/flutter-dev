@@ -3,7 +3,7 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 
 DEVBOX_NAME := env_var_or_default("DEVBOX_NAME", "flutter-dev")
 DEVBOX_IMAGE := env_var_or_default("DEVBOX_IMAGE", "quay.io/toolbx/ubuntu-toolbox:24.04")
-DEVBOX_PACKAGES := "at-spi2-core binutils build-essential cage clang cmake curl dbus-daemon flatpak flatpak-builder fontconfig fonts-dejavu-core fonts-lohit-deva fonts-noto-core fonts-sil-ezra fonts-thai-tlwg fonts-wqy-microhei git gir1.2-atspi-2.0 ibus ibus-gtk4 ibus-mozc jq libasound2-dev libcurl4-openssl-dev libegl-dev libgl-dev libgtk-3-dev libpsl-dev libsecret-1-dev libwayland-dev libx11-dev libxcursor-dev libxext-dev libxfixes-dev libxi-dev libxkbcommon-dev libxrandr-dev libxss-dev mesa-vulkan-drivers ninja-build openjdk-17-jdk-headless ostree pkg-config python3 python3-gi ripgrep shellcheck unzip wayland-protocols wtype xz-utils"
+DEVBOX_PACKAGES := "at-spi2-core binutils build-essential cage clang cmake curl dbus-daemon flatpak flatpak-builder git gir1.2-atspi-2.0 ibus ibus-gtk4 ibus-mozc jq libegl-dev libgl-dev libgtk-3-dev libsecret-1-dev libwayland-dev mesa-vulkan-drivers ninja-build openjdk-17-jdk-headless ostree pkg-config python3 python3-gi ripgrep shellcheck unzip wayland-protocols wtype xz-utils"
 
 default:
     @just --list --list-heading $'flutter-dev recipes:\n'
@@ -21,7 +21,7 @@ devbox-setup: devbox-create
 # Verify Ubuntu identity and the core workspace toolchains.
 [group('development')]
 devbox-check: devbox-create
-    @distrobox enter '{{ DEVBOX_NAME }}' -- bash -lc 'set -euo pipefail; cd "{{ justfile_directory() }}"; command -v mise >/dev/null || { printf "%s\n" "mise is missing; run just devbox-setup" >&2; exit 1; }; eval "$(mise activate bash)"; test "${CONTAINER_ID:-}" = "{{ DEVBOX_NAME }}" || { printf "%s\n" "not inside {{ DEVBOX_NAME }}" >&2; exit 1; }; . /etc/os-release; test "$ID" = ubuntu && test "$VERSION_ID" = 24.04 || { printf "%s\n" "{{ DEVBOX_NAME }} must be Ubuntu 24.04" >&2; exit 1; }; command -v git mise just flutter dart clang cmake ninja pkg-config cage; git status --short --branch; flutter --version; (cd apps/zuko && mise exec -- rustc --version); (cd apps/vixen && mise exec -- rustc --version)'
+    @distrobox enter '{{ DEVBOX_NAME }}' -- bash -lc 'set -euo pipefail; cd "{{ justfile_directory() }}"; command -v mise >/dev/null || { printf "%s\n" "mise is missing; run just devbox-setup" >&2; exit 1; }; eval "$(mise activate bash)"; test "${CONTAINER_ID:-}" = "{{ DEVBOX_NAME }}" || { printf "%s\n" "not inside {{ DEVBOX_NAME }}" >&2; exit 1; }; . /etc/os-release; test "$ID" = ubuntu && test "$VERSION_ID" = 24.04 || { printf "%s\n" "{{ DEVBOX_NAME }} must be Ubuntu 24.04" >&2; exit 1; }; command -v git mise just flutter dart clang cmake ninja pkg-config cage; git status --short --branch; flutter --version; (cd apps/zuko && mise exec -- rustc --version)'
 
 # Enter the workspace in an interactive Mise-active shell.
 [group('development')]
@@ -78,11 +78,7 @@ check-zuko:
     cd apps/zuko && mise exec -- just check
 
 [group('apps')]
-check-vixen:
-    cd apps/vixen && just setup && just test
-
-[group('apps')]
-check-apps: check-zuko check-vixen
+check-apps: check-zuko
 
 [group('dependencies')]
 check-libghostty:

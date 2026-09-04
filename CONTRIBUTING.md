@@ -12,17 +12,11 @@ just status
 just check
 ```
 
-Vixen is provisioned separately (see `apps/vixen/README.md`):
-
-```sh
-cd apps/vixen && just setup && just build
-```
-
 ## Work in the owning repository
 
 This workspace coordinates independent Git histories:
 
-- product behavior belongs in `apps/zuko` or `apps/vixen`;
+- product behavior belongs in `apps/zuko`;
 - reusable SDK, package, and plugin behavior belongs in its owning submodule;
 - the parent owns exact pins, integration policy, and composed-build evidence.
 

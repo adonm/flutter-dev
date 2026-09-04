@@ -2,10 +2,6 @@
 	path = apps/zuko
 	url = https://github.com/adonm/zuko.git
 	branch = main
-[submodule "apps/vixen"]
-	path = apps/vixen
-	url = https://github.com/adonm/vixen.git
-	branch = main
 [submodule "packages/libghostty"]
 	path = packages/libghostty
 	url = https://github.com/adonm/libghostty.git

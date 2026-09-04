@@ -11,15 +11,6 @@
       "purpose": "Private remote shell application and clients"
     },
     {
-      "path": "apps/vixen",
-      "kind": "app",
-      "origin": "https://github.com/adonm/vixen.git",
-      "upstream": null,
-      "branch": "main",
-      "commit": "1c17e4961a01748ad0a064d42e0ce69594de0dea",
-      "purpose": "Odin-native minimal browser (rewrite in progress; Flutter tree archived in-repo under flutter/)"
-    },
-    {
       "path": "packages/libghostty",
       "kind": "package",
       "origin": "https://github.com/adonm/libghostty.git",
