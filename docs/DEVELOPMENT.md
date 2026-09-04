@@ -20,8 +20,8 @@ Install these on the host:
 
 - [Mise](https://mise.jdx.dev/) for pinned project tools;
 - [Just](https://just.systems/) to run workspace recipes; and
-- the native Linux packages each application documents (Vixen:
-  `apps/vixen/docs/guidance/mise.md`).
+- the native Linux packages each application documents (Zuko:
+  `apps/zuko/docs/building-clients.md`; Vixen: `apps/vixen/README.md`).
 
 Review the repository's `mise.toml` and each application Mise file before
 trusting them. For an exact CI replica, optionally install
@@ -37,10 +37,16 @@ git clone --recurse-submodules https://github.com/adonm/flutter-dev.git
 cd flutter-dev
 mise trust && mise install
 (cd apps/zuko && mise trust && mise install)
-(cd apps/vixen && mise trust && mise install)
 eval "$(mise activate bash)"
 just status
 just check
+```
+
+Vixen is provisioned separately (see `apps/vixen/README.md`):
+
+```sh
+cd apps/vixen && just setup && just build
+```
 ```
 
 Install each application's native package list before running its Linux build
@@ -84,11 +90,10 @@ cd apps/zuko
 just check
 just build-flutter-linux
 
-# Vixen
+# Vixen (Odin rewrite)
 cd ../vixen
-just smoke
-just gate-flutter-shell
-just build-flutter-linux
+just setup   # first run only: pinned Odin SDK, native libs, fonts
+just test
 cd ../..
 ```
 
@@ -104,8 +109,7 @@ Useful entry points:
 | Parent pins or workflows | `just check` | `just check-remotes` |
 | Zuko Rust or shared Flutter | `cd apps/zuko && just check` | `just preflight` |
 | Zuko Linux client | `cd apps/zuko && just build-flutter-linux` | documented `container-*` compile gate |
-| Vixen Rust | `cd apps/vixen && just check` | `just smoke` |
-| Vixen Flutter shell | `cd apps/vixen && just gate-flutter-shell` | the relevant rendered/release gate |
+| Vixen browser | `cd apps/vixen && just test` | the child repository's own gates |
 | libghostty | `just check-libghostty` | the child repository's own checks |
 
 ## What setup owns
@@ -121,14 +125,14 @@ Keep configuration in the layer that owns it:
 The shared package set is defined once as `DEVBOX_PACKAGES` in the root
 `Justfile`. Android SDK platforms, build-tools, NDK, and Android CMake versions
 remain application-owned; follow `apps/zuko/docs/building-clients.md` before an
-Android build. Likewise, use the Vixen release guide before pulling its pinned
-GNOME builder.
+Android build. Vixen has no release builder; its pinned toolchains come from
+`just setup` inside `apps/vixen`.
 
 Use a child's bootstrap only when you need its additional one-time setup:
 
 ```sh
 (cd apps/zuko && mise bootstrap)
-(cd apps/vixen && mise bootstrap --yes)
+(cd apps/vixen && just setup)
 ```
 
 Mise activation follows directory changes, so the correct child tools become

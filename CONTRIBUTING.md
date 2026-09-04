@@ -7,10 +7,15 @@ baseline and a Distrobox is optional. For normal work:
 ```sh
 mise trust && mise install
 (cd apps/zuko && mise trust && mise install)
-(cd apps/vixen && mise trust && mise install)
 eval "$(mise activate bash)"
 just status
 just check
+```
+
+Vixen is provisioned separately (see `apps/vixen/README.md`):
+
+```sh
+cd apps/vixen && just setup && just build
 ```
 
 ## Work in the owning repository

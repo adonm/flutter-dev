@@ -3,7 +3,7 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 
 DEVBOX_NAME := env_var_or_default("DEVBOX_NAME", "flutter-dev")
 DEVBOX_IMAGE := env_var_or_default("DEVBOX_IMAGE", "quay.io/toolbx/ubuntu-toolbox:24.04")
-DEVBOX_PACKAGES := "at-spi2-core binutils build-essential cage clang cmake curl dbus-daemon flatpak flatpak-builder git gir1.2-atspi-2.0 ibus ibus-gtk4 ibus-mozc jq libegl-dev libgl-dev libgtk-3-dev libsecret-1-dev libwayland-dev mesa-vulkan-drivers ninja-build openjdk-17-jdk-headless ostree pkg-config python3 python3-gi ripgrep shellcheck unzip wayland-protocols wtype xz-utils"
+DEVBOX_PACKAGES := "at-spi2-core binutils build-essential cage clang cmake curl dbus-daemon flatpak flatpak-builder fontconfig fonts-dejavu-core fonts-lohit-deva fonts-noto-core fonts-sil-ezra fonts-thai-tlwg fonts-wqy-microhei git gir1.2-atspi-2.0 ibus ibus-gtk4 ibus-mozc jq libcurl4-openssl-dev libegl-dev libgl-dev libgtk-3-dev libpsl-dev libsecret-1-dev libsdl3-dev libwayland-dev mesa-vulkan-drivers ninja-build openjdk-17-jdk-headless ostree pkg-config python3 python3-gi ripgrep shellcheck unzip wayland-protocols wtype xz-utils"
 
 default:
     @just --list --list-heading $'flutter-dev recipes:\n'
@@ -16,7 +16,7 @@ devbox-create:
 # Install Ubuntu packages and the parent/application Mise tools.
 [group('development')]
 devbox-setup: devbox-create
-    @distrobox enter '{{ DEVBOX_NAME }}' -- bash -lc 'set -euo pipefail; test "${CONTAINER_ID:-}" = "{{ DEVBOX_NAME }}" || { printf "%s\n" "not inside {{ DEVBOX_NAME }}" >&2; exit 1; }; . /etc/os-release; test "$ID" = ubuntu && test "$VERSION_ID" = 24.04 || { printf "%s\n" "{{ DEVBOX_NAME }} must be Ubuntu 24.04" >&2; exit 1; }; command -v mise >/dev/null || { printf "%s\n" "mise is missing; install it on the shared host home first" >&2; exit 1; }; sudo apt-get update; sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends {{ DEVBOX_PACKAGES }}; cd "{{ justfile_directory() }}"; mise trust; mise install; (cd apps/zuko && mise trust && mise install); (cd apps/vixen && mise trust && mise install); printf "%s\n" "Ubuntu development environment is ready. Run: just devbox-enter"'
+    @distrobox enter '{{ DEVBOX_NAME }}' -- bash -lc 'set -euo pipefail; test "${CONTAINER_ID:-}" = "{{ DEVBOX_NAME }}" || { printf "%s\n" "not inside {{ DEVBOX_NAME }}" >&2; exit 1; }; . /etc/os-release; test "$ID" = ubuntu && test "$VERSION_ID" = 24.04 || { printf "%s\n" "{{ DEVBOX_NAME }} must be Ubuntu 24.04" >&2; exit 1; }; command -v mise >/dev/null || { printf "%s\n" "mise is missing; install it on the shared host home first" >&2; exit 1; }; sudo apt-get update; sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends {{ DEVBOX_PACKAGES }}; cd "{{ justfile_directory() }}"; mise trust; mise install; (cd apps/zuko && mise trust && mise install); printf "%s\n" "Ubuntu development environment is ready. Run: just devbox-enter"'
 
 # Verify Ubuntu identity and the core workspace toolchains.
 [group('development')]
@@ -79,7 +79,7 @@ check-zuko:
 
 [group('apps')]
 check-vixen:
-    cd apps/vixen && mise exec -- just test-r7
+    cd apps/vixen && just setup && just test
 
 [group('apps')]
 check-apps: check-zuko check-vixen

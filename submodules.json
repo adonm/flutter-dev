@@ -16,8 +16,8 @@
       "origin": "https://github.com/adonm/vixen.git",
       "upstream": null,
       "branch": "main",
-      "commit": "1dcc53d1aa16f00535dc7383c51b30acf5f3b8e1",
-      "purpose": "Flutter-hosted browser application and renderer"
+      "commit": "7d228f4c0c585220c927c9deb27fa4c4c4644f12",
+      "purpose": "Odin-native minimal browser (rewrite in progress; Flutter tree archived in-repo under flutter/)"
     },
     {
       "path": "packages/libghostty",

@@ -1,20 +1,20 @@
 # flutter-dev
 
 `flutter-dev` is the integration workspace for the [Zuko](https://github.com/adonm/zuko)
-and [Vixen](https://github.com/adonm/vixen) Flutter applications. It pins the
-applications and the shared libghostty/flterm fork as independent Git
+Flutter application, the [Vixen](https://github.com/adonm/vixen) Odin-native
+browser, and the shared libghostty/flterm fork as independent Git
 submodules.
 
 This is a meta-repository, not a source-history merger. Each child repository
 keeps its own issues, releases, build system, license, and upstream pull
 requests. The parent records one reproducible combination of exact commits.
 
-Both applications install the official Flutter stable (`3.47.1`) through
-Mise and build with the stock GTK3 embedder and Impeller. The custom GTK4
-framework/engine pipeline that this workspace previously coordinated was
-retired when the applications moved to the official beta, then to stable once
-Linux Impeller and the GTK3 embedder landed in stable 3.47; the history is
-summarized in [docs/WORKFLOW.md](docs/WORKFLOW.md).
+Zuko installs the official Flutter stable (`3.47.1`) through Mise and builds
+with the stock GTK3 embedder and Impeller. Vixen is an Odin-native browser
+with pinned C toolchains provisioned by its own `setup.sh`; its previous
+Flutter/Rust implementation is archived in-repo under `flutter/`. The custom
+GTK4 framework/engine pipeline that this workspace previously coordinated was
+retired earlier; the history is summarized in [docs/WORKFLOW.md](docs/WORKFLOW.md).
 
 ## Clone and bootstrap
 
@@ -27,9 +27,14 @@ git clone --recurse-submodules https://github.com/adonm/flutter-dev.git
 cd flutter-dev
 mise trust && mise install
 (cd apps/zuko && mise trust && mise install)
-(cd apps/vixen && mise trust && mise install)
 eval "$(mise activate bash)"
 just check
+```
+
+Vixen needs its system packages (see `apps/vixen/README.md`) plus:
+
+```sh
+cd apps/vixen && just setup && just build
 ```
 
 For an exact Ubuntu 24.04 replica, optionally run `just devbox-setup` once and
@@ -56,7 +61,7 @@ and troubleshooting.
 | Path | Role |
 |---|---|
 | `apps/zuko` | Private remote shell application and Flutter clients |
-| `apps/vixen` | Flutter-hosted browser application and renderer |
+| `apps/vixen` | Odin-native minimal browser (Flutter tree archived in-repo under `flutter/`) |
 | `packages/libghostty` | Ghostty terminal bindings and `flterm` widget fork |
 
 `.gitmodules` defines clone URLs and maintenance branches. `submodules.json`
@@ -68,7 +73,8 @@ The parent gitlinks remain Git's authoritative checkout pins.
 | App | Release commit |
 |---|---|
 | Zuko 0.10.15 | [`6268c84`](https://github.com/adonm/zuko/commit/6268c84) |
-| Vixen 0.1.7 | [`3b2e460`](https://github.com/adonm/vixen/commit/3b2e46039ee661e4cc44b7636114ad9fcd5d4f2d) |
+| Vixen (Odin rewrite) | [`7d228f4`](https://github.com/adonm/vixen/commit/7d228f4c0c585220c927c9deb27fa4c4c4644f12) |
+| Vixen 0.1.7 (archived Flutter) | [`3b2e460`](https://github.com/adonm/vixen/commit/3b2e46039ee661e4cc44b7636114ad9fcd5d4f2d) |
 
 Zuko resolves libghostty/flterm to the exact public fork commits recorded here;
 its terminal accessibility semantics and App-Store-compatible iOS packaging
@@ -83,7 +89,7 @@ just status          # show recursive status and validate local pins
 just check           # deterministic local metadata/worktree checks
 just check-remotes   # anonymously match every public branch tip to its pin
 just check-zuko      # run Zuko's own gate
-just check-vixen     # run Vixen's R7 gate
+just check-vixen     # run Vixen's Odin gates (setup + test)
 just check-libghostty
 just check-maintained # parent, remote, app, and libghostty gates
 just verify-clone <parent-commit> # isolated public recursive-clone proof
@@ -100,7 +106,6 @@ gate, for example:
 
 ```sh
 mise trust apps/zuko/mise.toml
-mise trust apps/vixen/.mise.toml
 ```
 
 ## Updating a pin
